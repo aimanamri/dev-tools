@@ -143,6 +143,7 @@ app/EX_*.toml
 
 # Project markdown docs (dev-only)
 *.md
+!README.md
 
 # Claude project config
 .claude/
