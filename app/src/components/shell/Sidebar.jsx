@@ -1,52 +1,10 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import {
-  KeyRound,
-  Clock,
-  Braces,
-  Binary,
-  CalendarClock,
-  QrCode,
-  FileImage,
-  FileText,
-  ArrowLeftRight,
-  Network,
-  GitCompare,
-  Globe,
-  FileCode2,
-  Layers,
-  NotebookPen,
-  ChevronRight,
-  Cpu,
-  Hash,
-  File,
-  ShieldCheck,
-} from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
+import { TOOLS } from '../../tools/registry'
 
 // Strong ease-out — gives instant-feeling response vs the weak built-in
 const EASE = 'cubic-bezier(0.23, 1, 0.32, 1)'
-
-const tools = [
-  { path: '/password',         label: 'Password Generator',  icon: KeyRound },
-  { path: '/timestamp',        label: 'Timestamp Converter', icon: Clock },
-  { path: '/json',             label: 'JSON Formatter',      icon: Braces },
-  { path: '/base64',           label: 'Base64 Converter',    icon: Binary },
-  { path: '/cron',             label: 'Cron Generator',      icon: CalendarClock },
-  { path: '/qr',               label: 'QR Code Generator',   icon: QrCode },
-  { path: '/svg',              label: 'SVG Converter',       icon: FileImage },
-  { path: '/markdown',         label: 'Markdown Preview',    icon: FileText },
-  { path: '/json-convert',     label: 'JSON Converters',     icon: ArrowLeftRight },
-  { path: '/json-tree',        label: 'JSON Tree Viewer',    icon: Network },
-  { path: '/json-diff',        label: 'JSON Diff',           icon: GitCompare },
-  { path: '/timezone',         label: 'Timezone Converter',  icon: Globe },
-  { path: '/pydict',           label: 'Python → JSON',       icon: FileCode2 },
-  { path: '/blowfish',         label: 'Blowfish Config',     icon: Layers },
-  { path: '/blowfish-article', label: 'Hugo Article Gen',    icon: NotebookPen },
-  { path: '/subnet',           label: 'IP Subnet Calc',      icon: Cpu },
-  { path: '/ip-convert',      label: 'IP Address Converter', icon: Hash },
-  { path: '/pdf',             label: 'PDF Tool Suite',      icon: File },
-  { path: '/pdf-security',   label: 'PDF Security',        icon: ShieldCheck },
-]
 
 function NavItem({ path, label, icon: Icon, collapsed }) {
   const [hovered, setHovered] = useState(false)
@@ -209,7 +167,7 @@ export default function Sidebar({ collapsed }) {
             padding: '0 8px',
           }}
         >
-          {tools.map(({ path, label, icon }) => (
+          {TOOLS.map(({ path, label, icon }) => (
             <NavItem
               key={path}
               path={path}
