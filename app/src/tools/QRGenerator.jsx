@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react'
-import { Download, ImageDown, Copy, Check, AlertCircle } from 'lucide-react'
+import { Download, ImageDown, Copy, Check, AlertCircle, ShieldCheck } from 'lucide-react'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'
 import Button from '../components/ui/Button'
 
@@ -501,6 +501,14 @@ export default function QRGenerator() {
             </div>
           </Card>
         </div>
+      </div>
+
+      {/* Privacy */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8, background: 'color-mix(in oklch, var(--color-success) 10%, var(--color-surface))', border: '1px solid var(--color-success)', marginTop: 16 }}>
+        <ShieldCheck size={16} strokeWidth={1.5} style={{ color: 'var(--color-success)', flexShrink: 0, marginTop: 1 }} />
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)', margin: 0, lineHeight: 1.55 }}>
+          QR codes are generated entirely in your browser. Your data never leaves your device or touches any server.
+        </p>
       </div>
 
       {/* Responsive */}

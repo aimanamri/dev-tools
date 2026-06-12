@@ -4,7 +4,7 @@ import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
 import katex from 'katex'
 import mermaid from 'mermaid'
-import { Upload, Download, Copy, Check, Eye, FileText, Columns } from 'lucide-react'
+import { Upload, Download, Copy, Check, Eye, FileText, Columns, ShieldCheck } from 'lucide-react'
 import 'katex/dist/katex.min.css'
 import 'highlight.js/styles/github.css'
 
@@ -554,6 +554,14 @@ ${safeInner}
             </div>
           </div>
         )}
+      </div>
+
+      {/* Privacy */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8, background: 'color-mix(in oklch, var(--color-success) 10%, var(--color-surface))', border: '1px solid var(--color-success)', marginTop: 16 }}>
+        <ShieldCheck size={16} strokeWidth={1.5} style={{ color: 'var(--color-success)', flexShrink: 0, marginTop: 1 }} />
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)', margin: 0, lineHeight: 1.55 }}>
+          Markdown is rendered entirely in your browser. Your content never leaves your device or touches any server.
+        </p>
       </div>
 
       <input

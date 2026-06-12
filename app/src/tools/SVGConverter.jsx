@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import DOMPurify from 'dompurify'
-import { Upload, Copy, Check, Download, Trash2, AlertCircle, FileImage } from 'lucide-react'
+import { Upload, Copy, Check, Download, Trash2, AlertCircle, FileImage, ShieldCheck } from 'lucide-react'
 import Button from '../components/ui/Button'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'
 
@@ -534,6 +534,14 @@ export default function SVGConverter() {
             </Card>
           )}
         </div>
+      </div>
+
+      {/* Privacy */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8, background: 'color-mix(in oklch, var(--color-success) 10%, var(--color-surface))', border: '1px solid var(--color-success)', marginTop: 16 }}>
+        <ShieldCheck size={16} strokeWidth={1.5} style={{ color: 'var(--color-success)', flexShrink: 0, marginTop: 1 }} />
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)', margin: 0, lineHeight: 1.55 }}>
+          SVG processing happens entirely in your browser. Your files never leave your device or touch any server.
+        </p>
       </div>
 
       <style>{`

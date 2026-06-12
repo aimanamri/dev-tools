@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { Copy, Check, RefreshCw, Shield } from 'lucide-react'
+import { Copy, Check, RefreshCw, Shield, ShieldCheck } from 'lucide-react'
 import Button from '../components/ui/Button'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'
 
@@ -356,6 +356,14 @@ export default function PasswordGenerator() {
       >
         Generate New Password
       </Button>
+
+      {/* Privacy */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8, background: 'color-mix(in oklch, var(--color-success) 10%, var(--color-surface))', border: '1px solid var(--color-success)' }}>
+        <ShieldCheck size={16} strokeWidth={1.5} style={{ color: 'var(--color-success)', flexShrink: 0, marginTop: 1 }} />
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)', margin: 0, lineHeight: 1.55 }}>
+          Passwords are generated entirely in your browser using <code style={{ fontFamily: 'var(--font-mono)' }}>crypto.getRandomValues()</code>. Nothing is sent to any server.
+        </p>
+      </div>
 
     </div>
   )
