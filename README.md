@@ -2,6 +2,8 @@
 
 > 19 client-side developer utilities — fast, private, no server required.
 
+**Live demo → [devtools.aimanuddin.com](https://devtools.aimanuddin.com)**
+
 A single-page application built with React and Vite that bundles a suite of everyday developer tools into one clean interface. Every operation runs entirely in your browser. No data is sent to any server, no accounts, no tracking.
 
 ---
@@ -93,6 +95,39 @@ A single-page application built with React and Vite that bundles a suite of ever
 | PDF editing | pdf-lib + pdf-lib-plus-encrypt |
 | Markdown | marked + DOMPurify + highlight.js + KaTeX + Mermaid |
 | Drag-and-drop | dnd-kit |
+
+---
+
+## Docker
+
+### Run with Docker
+
+```bash
+# Build the image
+docker build -t dev-tools .
+
+# Run on port 8080
+docker run -p 8080:80 dev-tools
+```
+
+Open [http://localhost:8080](http://localhost:8080).
+
+### Docker Compose
+
+```yaml
+services:
+  dev-tools:
+    build: .
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+```
+
+```bash
+docker compose up -d
+```
+
+The image uses a multi-stage build (Node 20 Alpine to compile, nginx Alpine to serve). Final image size is typically under 50 MB.
 
 ---
 
