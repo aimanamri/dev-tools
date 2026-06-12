@@ -43,7 +43,7 @@ const tools = [
   { path: '/blowfish',         label: 'Blowfish Config',     icon: Layers },
   { path: '/blowfish-article', label: 'Hugo Article Gen',    icon: NotebookPen },
   { path: '/subnet',           label: 'IP Subnet Calc',      icon: Cpu },
-  { path: '/ip-convert',      label: 'IP Converter',        icon: Hash },
+  { path: '/ip-convert',      label: 'IP Address Converter', icon: Hash },
   { path: '/pdf',             label: 'PDF Tool Suite',      icon: File },
   { path: '/pdf-security',   label: 'PDF Security',        icon: ShieldCheck },
 ]

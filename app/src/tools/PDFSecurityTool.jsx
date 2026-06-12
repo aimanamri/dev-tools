@@ -390,7 +390,7 @@ export default function PDFSecurityTool() {
   // ─── render ────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ maxWidth: 640 }}>
+    <div style={{ maxWidth: 640, margin: '0 auto' }}>
 
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontFamily: 'var(--font-sans)', fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-ink)', letterSpacing: '-0.02em', margin: '0 0 4px' }}>

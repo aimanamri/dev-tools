@@ -23,7 +23,7 @@ const tools = [
   { path: '/blowfish',         label: 'Blowfish Config',      icon: Layers,        desc: 'Bi-directional YAML ↔ TOML transpiler for Hugo Blowfish theme config files, with built-in templates.' },
   { path: '/blowfish-article', label: 'Hugo Article Generator', icon: NotebookPen,   desc: 'GUI front matter builder for Hugo Blowfish articles — generates ready-to-use .md files with live preview.' },
   { path: '/subnet',           label: 'IP Subnet Calculator',  icon: Cpu,           desc: 'Dual-stack IPv4 & IPv6 subnet calculator — network address, host range, masks, and binary breakdown.' },
-  { path: '/ip-convert',       label: 'IP Converter',          icon: Hash,          desc: 'Convert IPv4 addresses to 32-bit binary and back, with hex, integer, and per-octet breakdown.' },
+  { path: '/ip-convert',       label: 'IP Address Converter',  icon: Hash,          desc: 'Convert IPv4 addresses to 32-bit binary and back, with hex, integer, and per-octet breakdown.' },
   { path: '/pdf',              label: 'PDF Tool Suite',        icon: File,          desc: 'View, reorder, merge, split, watermark and fill PDF forms — fully client-side, files never uploaded.' },
   { path: '/pdf-security',    label: 'PDF Security',          icon: ShieldCheck,   desc: 'Remove or add password protection to PDF files. Unlock encrypted PDFs or encrypt with open and owner passwords — 100% client-side.' },
 ]

@@ -193,14 +193,14 @@ export default function IPConversionTool() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6 max-w-3xl mx-auto">
       {/* Header */}
       <div>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <ArrowLeftRight size={18} strokeWidth={1.5} style={{ color: 'var(--color-primary)' }} />
             <h1 className="text-xl font-semibold" style={{ color: 'var(--color-ink)' }}>
-              IP Conversion Tool
+              IP Address Converter
             </h1>
           </div>
           <button
