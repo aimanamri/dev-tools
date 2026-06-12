@@ -144,3 +144,4 @@ PROMPTS/*
 
 # Claude project config
 .claude/
+graphify-out/

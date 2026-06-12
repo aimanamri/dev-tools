@@ -3,6 +3,7 @@ app/dist
 app/.cache
 .git
 .claude
+graphify-out
 *.md
 !README.md
 .env
