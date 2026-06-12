@@ -207,8 +207,11 @@ export default function PDFSecurityTool() {
   }
 
   function loadFile(f) {
-    if (!f.name.toLowerCase().endsWith('.pdf') && f.type !== 'application/pdf') {
-      setStatus({ type: 'error', message: 'Please select a valid PDF file.' }); return
+    const nameOk = f.name.toLowerCase().endsWith('.pdf')
+    const typeOk = !f.type || f.type === 'application/pdf'
+    if (!nameOk || !typeOk) {
+      setStatus({ type: 'error', message: `"${f.name}" is not a PDF. Only .pdf files are accepted.` })
+      return
     }
     if (f.size > 200 * 1024 * 1024) {
       setStatus({ type: 'error', message: 'File exceeds the 200 MB limit.' }); return
