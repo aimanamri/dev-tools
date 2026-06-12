@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react'
 import cronstrue from 'cronstrue'
-import { Copy, Check, AlertCircle, Zap, RotateCcw } from 'lucide-react'
-import { useRef } from 'react'
+import { AlertCircle, Zap, RotateCcw } from 'lucide-react'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'
 import Button from '../components/ui/Button'
+import CopyButton from '../components/ui/CopyButton'
 
 // ── Cron explanation ──────────────────────────────────────────────────────────
 function explain(expr) {
@@ -284,28 +284,6 @@ function FieldRow({ field, value, onChange, error }) {
   )
 }
 
-// ── CopyButton ────────────────────────────────────────────────────────────────
-function CopyButton({ text, label = 'Copy' }) {
-  const [copied, setCopied] = useState(false)
-  const t = useRef(null)
-  function handle() {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true)
-      clearTimeout(t.current)
-      t.current = setTimeout(() => setCopied(false), 1800)
-    })
-  }
-  return (
-    <Button
-      size="sm" variant="secondary"
-      onClick={handle}
-      icon={copied ? <Check size={13} strokeWidth={2} /> : <Copy size={13} strokeWidth={1.5} />}
-      style={copied ? { color: 'var(--color-success)', borderColor: 'oklch(0.480 0.140 145 / 0.4)' } : {}}
-    >
-      {copied ? 'Copied' : label}
-    </Button>
-  )
-}
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function CronGenerator() {

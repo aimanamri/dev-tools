@@ -1,9 +1,10 @@
 import { useState, useCallback, useRef } from 'react'
 import {
-  Copy, Check, Upload, FileText, X, ShieldCheck,
+  Upload, FileText, X, ShieldCheck,
   AlertCircle, ArrowRight,
 } from 'lucide-react'
 import Button from '../components/ui/Button'
+import CopyButton from '../components/ui/CopyButton'
 
 // ── Encoding helpers ──────────────────────────────────────────────────────────
 function encodeText(str, charset) {
@@ -84,30 +85,6 @@ function fmtSize(bytes) {
 }
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024 // 10 MB
-
-// ── Shared sub-components ─────────────────────────────────────────────────────
-function CopyButton({ text }) {
-  const [copied, setCopied] = useState(false)
-  const t = useRef(null)
-  function handle() {
-    if (!text) return
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true)
-      clearTimeout(t.current)
-      t.current = setTimeout(() => setCopied(false), 1800)
-    })
-  }
-  return (
-    <Button
-      size="sm" variant="secondary"
-      onClick={handle} disabled={!text}
-      icon={copied ? <Check size={13} strokeWidth={2} /> : <Copy size={13} strokeWidth={1.5} />}
-      style={copied ? { color: 'var(--color-success)', borderColor: 'oklch(0.480 0.140 145 / 0.4)' } : {}}
-    >
-      {copied ? 'Copied' : 'Copy'}
-    </Button>
-  )
-}
 
 function ModeToggle({ mode, onChange }) {
   function btn(id, label) {

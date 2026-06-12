@@ -1,7 +1,8 @@
 import { useState, useRef, useCallback } from 'react'
 import DOMPurify from 'dompurify'
-import { Upload, Copy, Check, Download, Trash2, AlertCircle, FileImage, ShieldCheck } from 'lucide-react'
+import { Upload, Download, Trash2, AlertCircle, FileImage, ShieldCheck } from 'lucide-react'
 import Button from '../components/ui/Button'
+import CopyButton from '../components/ui/CopyButton'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'
 
 // ── SVG cleanup (native — no SVGO) ────────────────────────────────────────────
@@ -182,30 +183,6 @@ function downloadOutput(content, tabId) {
   const a    = Object.assign(document.createElement('a'), { href: url, download: `output.${ext}` })
   a.click()
   URL.revokeObjectURL(url)
-}
-
-// ── CopyButton ────────────────────────────────────────────────────────────────
-function CopyButton({ text, label = 'Copy' }) {
-  const [copied, setCopied] = useState(false)
-  const t = useRef(null)
-  function handle() {
-    if (!text) return
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true)
-      clearTimeout(t.current)
-      t.current = setTimeout(() => setCopied(false), 1800)
-    })
-  }
-  return (
-    <Button
-      size="sm" variant="secondary"
-      onClick={handle} disabled={!text}
-      icon={copied ? <Check size={13} strokeWidth={2} /> : <Copy size={13} strokeWidth={1.5} />}
-      style={copied ? { color: 'var(--color-success)', borderColor: 'oklch(0.480 0.140 145 / 0.4)' } : {}}
-    >
-      {copied ? 'Copied' : label}
-    </Button>
-  )
 }
 
 // ── Parse/validate SVG ────────────────────────────────────────────────────────

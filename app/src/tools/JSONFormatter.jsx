@@ -1,44 +1,16 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import {
-  Copy, Check, Braces, Minimize2, Trash2,
+  Braces, Minimize2, Trash2,
   AlertCircle, CheckCircle2, ClipboardPaste,
 } from 'lucide-react'
 import Button from '../components/ui/Button'
+import CopyButton from '../components/ui/CopyButton'
 
 // ── Parse helpers ─────────────────────────────────────────────────────────────
 function tryParse(text) {
   if (!text.trim()) return { ok: null, error: null, value: null }
   try   { return { ok: true,  error: null,      value: JSON.parse(text) } }
   catch (e) { return { ok: false, error: e.message, value: null } }
-}
-
-// ── CopyButton ────────────────────────────────────────────────────────────────
-function CopyButton({ text, label = 'Copy' }) {
-  const [copied, setCopied] = useState(false)
-  const t = useRef(null)
-  function handle() {
-    if (!text) return
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true)
-      clearTimeout(t.current)
-      t.current = setTimeout(() => setCopied(false), 1800)
-    })
-  }
-  return (
-    <Button
-      size="sm"
-      variant="secondary"
-      onClick={handle}
-      disabled={!text}
-      icon={copied
-        ? <Check size={13} strokeWidth={2} />
-        : <Copy  size={13} strokeWidth={1.5} />
-      }
-      style={copied ? { color: 'var(--color-success)', borderColor: 'oklch(0.480 0.140 145 / 0.4)' } : {}}
-    >
-      {copied ? 'Copied' : label}
-    </Button>
-  )
 }
 
 // ── Status badge ──────────────────────────────────────────────────────────────
