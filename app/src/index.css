@@ -1,0 +1,80 @@
+@import './styles/tokens.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-strong);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink-faint);
+  }
+
+  ::placeholder {
+    color: var(--color-ink-faint);
+    opacity: 1;
+  }
+
+  /* All clickable buttons get a pointer cursor */
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* Select — theme-aware base styling */
+  select {
+    background-color: var(--color-input-bg);
+    color:            var(--color-ink);
+    border:           1px solid var(--color-border-strong);
+    border-radius:    6px;
+    padding:          6px 10px;
+    font-size:        0.875rem;
+    font-family:      'JetBrains Mono', 'Fira Code', monospace;
+    cursor:           pointer;
+    transition:       border-color 120ms ease-out, box-shadow 120ms ease-out;
+  }
+  select:hover:not(:disabled) {
+    border-color: var(--color-ink-faint);
+  }
+  select:focus-visible {
+    outline:      2px solid var(--color-primary);
+    outline-offset: -1px;
+    border-color: var(--color-primary);
+  }
+  select:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* Textarea — consistent with Input.jsx */
+  textarea {
+    background-color: var(--color-input-bg);
+    color:            var(--color-ink);
+    transition:       border-color 120ms ease-out;
+  }
+}

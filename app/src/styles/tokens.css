@@ -1,0 +1,92 @@
+/* OKLCH Design Tokens — from DESIGN.md */
+:root {
+  /* Surfaces */
+  --color-bg:               oklch(0.978 0.008 60);
+  --color-surface:          oklch(0.963 0.007 28);
+  --color-surface-raised:   oklch(0.946 0.010 28);
+  --color-sidebar:          oklch(0.158 0.032 28);
+  --color-sidebar-surface:  oklch(0.198 0.028 28);
+  --color-toolbar:          oklch(0.168 0.030 28);
+
+  /* Text */
+  --color-ink:              oklch(0.175 0.022 28);
+  --color-ink-muted:        oklch(0.440 0.018 28);
+  --color-ink-faint:        oklch(0.640 0.010 28);
+  --color-ink-on-sidebar:   oklch(0.920 0.014 28);
+  --color-ink-sidebar-muted: oklch(0.600 0.020 28);
+  --color-ink-on-primary:   oklch(1.000 0.000 0);
+
+  /* Brand */
+  --color-primary:          oklch(0.489 0.190 28.3);
+  --color-primary-hover:    oklch(0.440 0.190 28.3);
+  --color-primary-subtle:   oklch(0.940 0.035 28);
+
+  /* Accent */
+  --color-accent:           oklch(0.460 0.115 215);
+  --color-accent-subtle:    oklch(0.940 0.025 215);
+
+  /* Semantic */
+  --color-success:          oklch(0.480 0.140 145);
+  --color-warning:          oklch(0.560 0.175 65);
+  --color-error:            oklch(0.490 0.195 18);
+  --color-info:             oklch(0.480 0.120 230);
+
+  /* Borders */
+  --color-border:           oklch(0.880 0.010 28);
+  --color-border-strong:    oklch(0.780 0.018 28);
+  --color-border-sidebar:   oklch(0.240 0.025 28);
+
+  /* Input / editor surfaces */
+  --color-input-bg:         oklch(1.000 0.000 0);
+}
+
+html.dark {
+  /* Surfaces */
+  --color-bg:               oklch(0.118 0.000 0);
+  --color-surface:          oklch(0.165 0.020 28);
+  --color-surface-raised:   oklch(0.195 0.018 28);
+  --color-sidebar:          oklch(0.082 0.018 28);
+  --color-sidebar-surface:  oklch(0.122 0.022 28);
+  --color-toolbar:          oklch(0.090 0.016 28);
+
+  /* Text */
+  --color-ink:              oklch(0.940 0.010 28);
+  --color-ink-muted:        oklch(0.620 0.015 28);
+  --color-ink-faint:        oklch(0.420 0.010 28);
+  --color-ink-on-sidebar:   oklch(0.900 0.012 28);
+  --color-ink-sidebar-muted: oklch(0.550 0.018 28);
+  --color-ink-on-primary:   oklch(1.000 0.000 0);
+
+  /* Brand */
+  --color-primary:          oklch(0.560 0.180 28.3);
+  --color-primary-hover:    oklch(0.610 0.170 28.3);
+  --color-primary-subtle:   oklch(0.195 0.055 28);
+
+  /* Accent */
+  --color-accent:           oklch(0.600 0.108 215);
+  --color-accent-subtle:    oklch(0.185 0.040 215);
+
+  /* Semantic */
+  --color-success:          oklch(0.560 0.135 145);
+  --color-warning:          oklch(0.620 0.160 65);
+  --color-error:            oklch(0.560 0.185 18);
+  --color-info:             oklch(0.560 0.115 230);
+
+  /* Borders */
+  --color-border:           oklch(0.255 0.015 28);
+  --color-border-strong:    oklch(0.340 0.022 28);
+  --color-border-sidebar:   oklch(0.195 0.022 28);
+
+  /* Input / editor surfaces */
+  --color-input-bg:         oklch(0.165 0.020 28);
+
+  /* Native form controls */
+  color-scheme:             dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

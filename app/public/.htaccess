@@ -1,0 +1,36 @@
+# ── MIME types ────────────────────────────────────────────────────────────────
+# Apache does not serve .mjs as application/javascript by default.
+# Without this, browsers refuse to execute .mjs files as ES modules
+# (including the PDF.js worker bundled by Vite as pdf.worker-*.mjs).
+AddType application/javascript .mjs
+
+Options -MultiViews
+RewriteEngine On
+
+# ── Force HTTPS ───────────────────────────────────────────────────────────────
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# ── SPA routing — send non-file/non-directory requests to index.html ──────────
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [QSA,L]
+
+# ── Security headers ──────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+  # Prevent MIME-type sniffing
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Clickjacking protection (also covered by frame-ancestors in CSP below)
+  Header always set X-Frame-Options "DENY"
+
+  # Limit referrer leakage to third parties (e.g. Google Fonts)
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Deny browser APIs not used by this tool
+  Header always set Permissions-Policy "camera=(), microphone=(), usb=(), geolocation=()"
+
+  # Content Security Policy
+  # script-src hash covers the inline theme-detection script in index.html
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-OqLmGeF8Tx8EKtYXpT0zJ+EoW7nIBk6fpOYq2h3bjjY='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'none'; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+</IfModule>
