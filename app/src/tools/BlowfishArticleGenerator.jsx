@@ -154,10 +154,13 @@ function triggerDownload(content, filename) {
 
 function CopyBtn({ text }) {
   const [copied, setCopied] = useState(false)
+  const t = useRef(null)
+  useEffect(() => () => clearTimeout(t.current), [])
   function handleCopy() {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      clearTimeout(t.current)
+      t.current = setTimeout(() => setCopied(false), 2000)
     })
   }
   return (
@@ -375,11 +378,13 @@ export default function BlowfishArticleGenerator() {
       const id = `bag-mermaid-${++mermaidSeq}`
       try {
         const { svg } = await mermaid.render(id, code)
+        if (!container.contains(div)) return
         const wrap = document.createElement('div')
         wrap.className = 'mermaid-rendered'
         wrap.innerHTML = svg
         div.parentNode?.replaceChild(wrap, div)
       } catch (err) {
+        if (!container.contains(div)) return
         div.className = 'bag-mermaid-error'
         div.textContent = `Diagram error: ${err.message}`
       }

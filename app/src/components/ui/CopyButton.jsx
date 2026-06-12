@@ -1,10 +1,11 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Copy, Check } from 'lucide-react'
 import Button from './Button'
 
 export default function CopyButton({ text, label = 'Copy' }) {
   const [copied, setCopied] = useState(false)
   const t = useRef(null)
+  useEffect(() => () => clearTimeout(t.current), [])
   function handle() {
     if (!text) return
     navigator.clipboard.writeText(text).then(() => {

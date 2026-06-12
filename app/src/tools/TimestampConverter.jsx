@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { Copy, Check, Clock, Info, BookOpen } from 'lucide-react'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -122,6 +122,7 @@ function discordFormats(epochSec) {
 function CopyButton({ text }) {
   const [copied, setCopied] = useState(false)
   const t = useRef(null)
+  useEffect(() => () => clearTimeout(t.current), [])
 
   function handle() {
     navigator.clipboard.writeText(text).then(() => {

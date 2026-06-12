@@ -503,6 +503,12 @@ export default function BlowfishTranspiler() {
   const [copiedOutput, setCopiedOutput] = useState(false)
   const [convertFlash, setConvertFlash] = useState(false)
   const menuRef = useRef(null)
+  const copyOutputTimerRef = useRef(null)
+  const convertFlashTimerRef = useRef(null)
+  useEffect(() => () => {
+    clearTimeout(copyOutputTimerRef.current)
+    clearTimeout(convertFlashTimerRef.current)
+  }, [])
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -580,13 +586,15 @@ export default function BlowfishTranspiler() {
     if (!output) return
     navigator.clipboard.writeText(output).then(() => {
       setCopiedOutput(true)
-      setTimeout(() => setCopiedOutput(false), 2000)
+      clearTimeout(copyOutputTimerRef.current)
+      copyOutputTimerRef.current = setTimeout(() => setCopiedOutput(false), 2000)
     })
   }, [output])
 
   const handleConvert = useCallback(() => {
     setConvertFlash(true)
-    setTimeout(() => setConvertFlash(false), 800)
+    clearTimeout(convertFlashTimerRef.current)
+    convertFlashTimerRef.current = setTimeout(() => setConvertFlash(false), 800)
   }, [])
 
   // ── Shared button styles ────────────────────────────────────────────────

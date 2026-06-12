@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react'
 import { Download, ImageDown, Copy, Check, AlertCircle, ShieldCheck } from 'lucide-react'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'
@@ -203,6 +203,7 @@ function FormField({ field, value, onChange }) {
 function CopyButton({ text }) {
   const [copied, setCopied] = useState(false)
   const t = useRef(null)
+  useEffect(() => () => clearTimeout(t.current), [])
   function handle() {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true)

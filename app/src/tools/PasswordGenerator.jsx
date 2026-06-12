@@ -159,6 +159,7 @@ export default function PasswordGenerator() {
   useEffect(() => {
     regenerate()
   }, [regenerate])
+  useEffect(() => () => clearTimeout(copiedTimer.current), [])
 
   function handleCopy() {
     if (!password) return
