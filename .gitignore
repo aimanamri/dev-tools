@@ -136,10 +136,7 @@ Desktop.ini
 app/EX_*.toml
 
 # Local prompt / session files
-.1_prompt
-.1_prompt.md
-.template_prompt
-.template_prompt.md
+PROMPTS/*
 
 # Project markdown docs (dev-only)
 *.md
