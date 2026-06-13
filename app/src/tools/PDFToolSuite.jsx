@@ -9,6 +9,7 @@ import {
   ChevronLeft, ChevronRight, Search, X, Download,
   Trash2, FilePlus, Scissors, FileText,
   AlertCircle, CheckCircle, Shield, Undo2, GripVertical,
+  Eye, Layers,
 } from 'lucide-react'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -29,6 +30,26 @@ function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)) }
 
 function hasReordered(order) {
   return order.some((p, i) => p.origIdx !== i)
+}
+
+// Parse expressions like "1,5-7,10,3-1" into a Set of page numbers (1-indexed, clamped to total)
+function parsePageExpression(expr, total) {
+  const pages = new Set()
+  expr.split(',').forEach(part => {
+    const s = part.trim()
+    if (!s) return
+    if (s.includes('-')) {
+      const [a, b] = s.split('-').map(n => parseInt(n.trim(), 10))
+      if (!isNaN(a) && !isNaN(b)) {
+        const lo = Math.min(a, b), hi = Math.max(a, b)
+        for (let p = lo; p <= hi; p++) if (p >= 1 && p <= total) pages.add(p)
+      }
+    } else {
+      const n = parseInt(s, 10)
+      if (!isNaN(n) && n >= 1 && n <= total) pages.add(n)
+    }
+  })
+  return pages
 }
 
 // ─── style constants ──────────────────────────────────────────────────────────
@@ -97,18 +118,37 @@ function ThumbnailCanvas({ pdfJs, pageIndex, scale = 0.2 }) {
 
 function SortableThumbnail({ id, pdfJs, origPageIdx, label, isActive, isDeleted, onSelect, onToggleDelete }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  const [hover, setHover] = useState(false)
+  const borderColor = isActive
+    ? 'var(--color-primary)'
+    : isDeleted
+      ? 'var(--color-error)'
+      : hover
+        ? 'var(--color-primary)'
+        : 'var(--color-border-strong)'
   return (
     <div
       ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1, zIndex: isDragging ? 10 : 'auto' }}
+      style={{
+        transform: `${CSS.Transform.toString(transform) || ''} scale(${isDragging ? 1.04 : 1})`,
+        transition,
+        opacity: isDragging ? 0.9 : 1,
+        zIndex: isDragging ? 10 : 'auto',
+        boxShadow: isDragging ? 'var(--shadow-md)' : 'none',
+        borderRadius: 6,
+      }}
       {...attributes}
     >
       <div
         onClick={() => onSelect()}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
         style={{
-          position: 'relative', borderRadius: 4, overflow: 'hidden', cursor: 'pointer',
-          border: `2px solid ${isActive ? 'var(--color-primary)' : isDeleted ? 'var(--color-error)' : 'var(--color-border-strong)'}`,
+          position: 'relative', borderRadius: 6, overflow: 'hidden',
+          cursor: isDragging ? 'grabbing' : 'pointer',
+          border: `2px solid ${borderColor}`,
           opacity: isDeleted ? 0.45 : 1, userSelect: 'none',
+          transition: 'border-color var(--dur-fast) var(--ease-out-quart)',
         }}
       >
         <div {...listeners} onClick={e => e.stopPropagation()}
@@ -211,6 +251,9 @@ export default function PDFToolSuite() {
   const [wmOpacity, setWmOpacity] = useState(0.15)
   const [wmSize, setWmSize] = useState(48)
   const [wmPages, setWmPages] = useState('all')
+  const [wmPagesCustom, setWmPagesCustom] = useState('')
+  const [wmPosition, setWmPosition] = useState('diagonal')
+  const [wmRotation, setWmRotation] = useState(45)
   const [formFields, setFormFields] = useState([])
   const [formValues, setFormValues] = useState({})
   const [meta, setMeta] = useState({ title: '', author: '', subject: '', keywords: '', creator: '' })
@@ -224,11 +267,15 @@ export default function PDFToolSuite() {
   const renderTaskRef = useRef(null)
   const fileInputRef = useRef(null)
   const mergeInputRef = useRef(null)
+  const searchDebounceRef = useRef(null)
+  const overlayRef = useRef(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
+
+  useEffect(() => () => clearTimeout(searchDebounceRef.current), [])
 
   // ── load PDF ─────────────────────────────────────────────────────────────────
 
@@ -314,23 +361,109 @@ export default function PDFToolSuite() {
     }
   }, [pdfJs, currentPage, zoom, rotation])
 
+  // ── search highlights overlay ─────────────────────────────────────────────────
+
+  useEffect(() => {
+    const overlay = overlayRef.current
+    if (!overlay) return
+    const ctx = overlay.getContext('2d')
+
+    const q = searchQuery.replace(/\s+/g, ' ').trim().toLowerCase()
+    const singleWord = !!q && !q.includes(' ')
+    // Only single-word queries get per-occurrence highlights (word-level matches carry itemIndex)
+    const pageMatches = singleWord
+      ? searchResults.filter(m => m.page === currentPage && m.itemIndex != null)
+      : []
+
+    if (!pdfJs || !pageMatches.length) {
+      ctx.clearRect(0, 0, overlay.width, overlay.height)
+      return
+    }
+
+    let dead = false
+    ;(async () => {
+      const page = await pdfJs.getPage(currentPage)
+      if (dead) return
+      const vp = page.getViewport({ scale: zoom, rotation })
+      overlay.width = vp.width
+      overlay.height = vp.height
+
+      const tc = await page.getTextContent()
+      if (dead) return
+      ctx.clearRect(0, 0, overlay.width, overlay.height)
+
+      pageMatches.forEach(m => {
+        const item = tc.items[m.itemIndex]
+        if (!item || typeof item.str !== 'string' || !item.str.length) return
+
+        const [, b, , d, tx, ty] = item.transform
+        const h = item.height || Math.sqrt(b * b + d * d)
+        if (!h) return
+
+        // Approximate the word's sub-rectangle by proportional character advance
+        const charW = item.width / item.str.length
+        const wx1 = tx + m.charIndex * charW
+        const wx2 = tx + (m.charIndex + q.length) * charW
+        const [x1, y1] = vp.convertToViewportPoint(wx1, ty + h)
+        const [x2, y2] = vp.convertToViewportPoint(wx2, ty)
+        const rx = Math.min(x1, x2)
+        const ry = Math.min(y1, y2)
+        const rw = Math.abs(x2 - x1)
+        const rh = Math.abs(y2 - y1)
+
+        const isActive = searchResults[searchIdx] === m
+        ctx.fillStyle = isActive ? 'rgba(255, 140, 0, 0.50)' : 'rgba(255, 210, 0, 0.32)'
+        ctx.fillRect(rx, ry, rw, rh)
+        ctx.strokeStyle = isActive ? 'rgba(190, 85, 0, 0.85)' : 'rgba(200, 140, 0, 0.5)'
+        ctx.lineWidth = isActive ? 1.5 : 1
+        ctx.strokeRect(rx, ry, rw, rh)
+      })
+    })()
+
+    return () => { dead = true }
+  }, [pdfJs, currentPage, zoom, rotation, searchQuery, searchResults, searchIdx])
+
   // ── search ────────────────────────────────────────────────────────────────────
 
-  const runSearch = useCallback(async () => {
-    if (!pdfJs || !searchQuery.trim()) { setSearchResults([]); return }
-    const q = searchQuery.toLowerCase()
-    const hits = []
+  const runSearch = useCallback(async (queryOverride) => {
+    const q = (queryOverride ?? searchQuery).replace(/\s+/g, ' ').trim().toLowerCase()
+    if (!pdfJs || !q) { setSearchResults([]); setSearchIdx(0); return }
+    const singleWord = !q.includes(' ')
+    const matches = []
     for (let i = 1; i <= numPages; i++) {
       const page = await pdfJs.getPage(i)
       const tc = await page.getTextContent()
-      const text = tc.items.map(it => it.str).join(' ').toLowerCase()
-      if (text.includes(q)) hits.push(i)
+      if (singleWord) {
+        // Record every occurrence within each text item → occurrence-level navigation
+        tc.items.forEach((it, idx) => {
+          if (typeof it.str !== 'string') return
+          const s = it.str.toLowerCase()
+          let from = 0
+          while (true) {
+            const at = s.indexOf(q, from)
+            if (at === -1) break
+            matches.push({ page: i, itemIndex: idx, charIndex: at })
+            from = at + q.length
+          }
+        })
+      } else {
+        // Phrases span item boundaries — fall back to page-level, no per-word highlight
+        const text = tc.items
+          .filter(it => typeof it.str === 'string')
+          .map(it => it.str)
+          .join('')
+          .replace(/\s+/g, ' ')
+          .toLowerCase()
+        if (text.includes(q)) matches.push({ page: i })
+      }
     }
-    setSearchResults(hits)
+    setSearchResults(matches)
     setSearchIdx(0)
-    if (hits.length) setCurrentPage(hits[0])
-    setStatus(hits.length
-      ? { type: 'success', msg: `Found on ${hits.length} page${hits.length !== 1 ? 's' : ''}` }
+    if (matches.length) setCurrentPage(matches[0].page)
+    setStatus(matches.length
+      ? { type: 'success', msg: singleWord
+          ? `${matches.length} match${matches.length !== 1 ? 'es' : ''} found`
+          : `Found on ${matches.length} page${matches.length !== 1 ? 's' : ''}` }
       : { type: 'info', msg: 'No matches found' }
     )
   }, [pdfJs, numPages, searchQuery])
@@ -339,7 +472,7 @@ export default function PDFToolSuite() {
     if (!searchResults.length) return
     const next = (searchIdx + dir + searchResults.length) % searchResults.length
     setSearchIdx(next)
-    setCurrentPage(searchResults[next])
+    setCurrentPage(searchResults[next].page)
   }, [searchResults, searchIdx])
 
   // ── file drop / input ─────────────────────────────────────────────────────────
@@ -480,18 +613,44 @@ export default function PDFToolSuite() {
 
   const applyWatermark = useCallback(async () => {
     if (!workBytes || !wmText.trim()) { setStatus({ type: 'error', msg: 'Enter watermark text.' }); return }
+    if (wmPages === 'custom' && !wmPagesCustom.trim()) {
+      setStatus({ type: 'error', msg: 'Enter page numbers for custom target.' }); return
+    }
     setProcessing(true)
     try {
       const doc = await PDFDocument.load(workBytes, { ignoreEncryption: true })
+      const totalPages = doc.getPageCount()
+      let customPageSet = null
+      if (wmPages === 'custom') {
+        customPageSet = parsePageExpression(wmPagesCustom, totalPages)
+        if (!customPageSet.size) {
+          setStatus({ type: 'error', msg: `No valid pages matched (document has ${totalPages} pages).` })
+          return
+        }
+      }
       const font = await doc.embedFont(StandardFonts.HelveticaBold)
       doc.getPages().forEach((page, i) => {
         const pNum = i + 1
-        const apply = wmPages === 'all' || (wmPages === 'odd' && pNum % 2 === 1) || (wmPages === 'even' && pNum % 2 === 0)
+        let apply = wmPages === 'all' || (wmPages === 'odd' && pNum % 2 === 1) || (wmPages === 'even' && pNum % 2 === 0)
+        if (wmPages === 'custom') apply = customPageSet.has(pNum)
         if (!apply) return
         const { width, height } = page.getSize()
+        const textWidth = font.widthOfTextAtSize(wmText, wmSize)
+        const margin = 30
+        const posMap = {
+          diagonal:       { x: width / 4,                    y: height / 2,               r: 45 },
+          center:         { x: (width - textWidth) / 2,       y: (height - wmSize) / 2,    r: 0  },
+          'top-left':     { x: margin,                        y: height - wmSize - margin,  r: 0  },
+          'top-center':   { x: (width - textWidth) / 2,       y: height - wmSize - margin,  r: 0  },
+          'top-right':    { x: width - textWidth - margin,    y: height - wmSize - margin,  r: 0  },
+          'bottom-left':  { x: margin,                        y: margin,                    r: 0  },
+          'bottom-center':{ x: (width - textWidth) / 2,       y: margin,                    r: 0  },
+          'bottom-right': { x: width - textWidth - margin,    y: margin,                    r: 0  },
+        }
+        const pos = posMap[wmPosition] ?? posMap.diagonal
         page.drawText(wmText, {
-          x: width / 4, y: height / 2, size: wmSize, font,
-          color: rgb(0.7, 0.1, 0.1), opacity: wmOpacity, rotate: degrees(45),
+          x: pos.x, y: pos.y, size: wmSize, font,
+          color: rgb(0.7, 0.1, 0.1), opacity: wmOpacity, rotate: degrees(wmRotation),
         })
       })
       const saved = new Uint8Array(await doc.save())
@@ -504,7 +663,7 @@ export default function PDFToolSuite() {
     } finally {
       setProcessing(false)
     }
-  }, [workBytes, wmText, wmOpacity, wmSize, wmPages])
+  }, [workBytes, wmText, wmOpacity, wmSize, wmPages, wmPagesCustom, wmPosition, wmRotation])
 
   // ── form fill ─────────────────────────────────────────────────────────────────
 
@@ -593,46 +752,98 @@ export default function PDFToolSuite() {
   // ─── drop zone (no file loaded) ───────────────────────────────────────────────
 
   if (!pdfJs) {
+    const capabilities = [
+      { Icon: Eye, label: 'View & search' },
+      { Icon: Layers, label: 'Reorder & delete' },
+      { Icon: FilePlus, label: 'Merge' },
+      { Icon: Scissors, label: 'Split & extract' },
+      { Icon: FileText, label: 'Watermark & forms' },
+    ]
     return (
-      <div style={{ padding: 24, maxWidth: 600, margin: '0 auto' }}>
-        <h1 style={{ fontFamily: 'var(--font-sans)', fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-ink)', marginBottom: 4, letterSpacing: '-0.02em' }}>
-          PDF Tool Suite
-        </h1>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--color-ink-muted)', marginBottom: 24 }}>
-          View, reorder, merge, split, watermark and fill PDF forms — 100% client-side.
-        </p>
+      <div style={{ padding: '8px 24px 24px', maxWidth: 620, margin: '0 auto' }}>
+        <div className="rise-in" style={{ '--word-delay': '0ms', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+            backgroundColor: 'var(--color-primary-subtle)',
+            boxShadow: '0 0 0 6px var(--color-surface-wash)',
+          }}>
+            <FileText size={22} strokeWidth={1.5} style={{ color: 'var(--color-primary)' }} />
+          </span>
+          <div>
+            <h1 style={{ fontFamily: 'var(--font-sans)', fontSize: '1.375rem', fontWeight: 600, color: 'var(--color-ink)', margin: 0, letterSpacing: '-0.025em' }}>
+              PDF Tool Suite
+            </h1>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--color-ink-muted)', margin: '2px 0 0' }}>
+              View, reorder, merge, split, watermark and fill PDF forms.
+            </p>
+          </div>
+        </div>
 
         <StatusBanner status={status} onClose={() => setStatus({ type: '', msg: '' })} />
 
         <div
+          className="rise-in"
           onDragOver={e => { e.preventDefault(); setIsDragOver(true) }}
           onDragLeave={() => setIsDragOver(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
           style={{
+            '--word-delay': '90ms',
             border: `2px dashed ${isDragOver ? 'var(--color-primary)' : 'var(--color-border-strong)'}`,
-            borderRadius: 8, padding: '48px 32px', textAlign: 'center', cursor: 'pointer',
+            borderRadius: 12, padding: '52px 32px', textAlign: 'center', cursor: 'pointer',
             backgroundColor: isDragOver ? 'var(--color-primary-subtle)' : 'var(--color-surface)',
-            transition: 'border-color 120ms ease-out, background-color 120ms ease-out',
+            boxShadow: isDragOver ? '0 0 0 4px var(--color-primary-glow)' : 'none',
+            transform: isDragOver ? 'scale(1.01)' : 'scale(1)',
+            transition: 'border-color var(--dur-fast) var(--ease-out-quart), background-color var(--dur-fast) var(--ease-out-quart), box-shadow var(--dur-normal) var(--ease-out-quart), transform var(--dur-normal) var(--ease-out-quart)',
           }}
         >
-          <Upload size={32} strokeWidth={1.5} style={{ color: 'var(--color-ink-muted)', display: 'block', margin: '0 auto 12px' }} />
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-ink)', marginBottom: 4 }}>
-            Drop a PDF here or click to browse
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 56, height: 56, borderRadius: 16, marginBottom: 14,
+            backgroundColor: isDragOver ? 'var(--color-primary)' : 'var(--color-surface-raised)',
+            transition: 'background-color var(--dur-fast) var(--ease-out-quart)',
+          }}>
+            <Upload
+              size={26} strokeWidth={1.5}
+              style={{
+                color: isDragOver ? 'var(--color-ink-on-primary)' : 'var(--color-ink-muted)',
+                transform: isDragOver ? 'translateY(-2px)' : 'translateY(0)',
+                transition: 'color var(--dur-fast) var(--ease-out-quart), transform var(--dur-normal) var(--ease-out-quart)',
+              }}
+            />
+          </span>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.9375rem', fontWeight: 500, color: 'var(--color-ink)', marginBottom: 4 }}>
+            {isDragOver ? 'Release to open' : 'Drop a PDF here or click to browse'}
           </p>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)' }}>
-            Files are processed entirely in your browser — never uploaded.
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--color-ink-faint)', margin: 0 }}>
+            .pdf · processed in-browser · never uploaded
           </p>
           <input ref={fileInputRef} type="file" accept="application/pdf" onChange={handleFileInput} style={{ display: 'none' }} />
         </div>
 
-        <div style={{
+        <div className="rise-in" style={{ '--word-delay': '170ms', display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16 }}>
+          {capabilities.map(({ Icon, label }) => (
+            <span key={label} style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '5px 11px', borderRadius: 9999,
+              backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border-strong)',
+              fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--color-ink-muted)',
+            }}>
+              <Icon size={13} strokeWidth={1.5} style={{ color: 'var(--color-primary)' }} />
+              {label}
+            </span>
+          ))}
+        </div>
+
+        <div className="rise-in" style={{
+          '--word-delay': '250ms',
           marginTop: 16, display: 'flex', alignItems: 'flex-start', gap: 8,
-          padding: '10px 14px', borderRadius: 6,
-          backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)',
+          padding: '10px 14px', borderRadius: 8,
+          backgroundColor: 'var(--color-surface-wash)', border: '1px solid var(--color-border)',
         }}>
           <Shield size={14} strokeWidth={1.5} style={{ color: 'var(--color-success)', flexShrink: 0, marginTop: 1 }} />
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)', margin: 0 }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)', margin: 0, lineHeight: 1.55 }}>
             All PDF operations use PDF.js and pdf-lib running locally. Your file is never sent to any server and is cleared from memory when you close the tab.
           </p>
         </div>
@@ -689,8 +900,7 @@ export default function PDFToolSuite() {
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
 
         {/* ── VIEW ── */}
-        {tab === 'view' && (
-          <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: tab === 'view' ? 'flex' : 'none', overflow: 'hidden' }}>
             {/* thumbnail sidebar */}
             <div style={{
               width: 96, flexShrink: 0, borderRight: '1px solid var(--color-border-strong)',
@@ -731,20 +941,40 @@ export default function PDFToolSuite() {
 
                 <div style={{ width: 1, height: 16, backgroundColor: 'var(--color-border)', marginInline: 2 }} />
 
-                <input
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && runSearch()}
-                  placeholder="Search text…"
-                  style={{
-                    fontFamily: 'var(--font-mono)', fontSize: '0.8125rem',
-                    padding: '3px 8px', borderRadius: 4,
-                    border: '1px solid var(--color-border-strong)',
-                    backgroundColor: 'var(--color-input-bg)', color: 'var(--color-ink)',
-                    width: 130, outline: 'none',
-                  }}
-                />
-                <button onClick={runSearch} style={iconBtn} title="Search"><Search size={13} strokeWidth={1.5} /></button>
+                <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                  <input
+                    value={searchQuery}
+                    onChange={e => {
+                      const v = e.target.value
+                      setSearchQuery(v)
+                      clearTimeout(searchDebounceRef.current)
+                      if (v.replace(/\s+/g, '').length >= 2) {
+                        searchDebounceRef.current = setTimeout(() => runSearch(v), 450)
+                      } else {
+                        setSearchResults([])
+                      }
+                    }}
+                    onKeyDown={e => { if (e.key === 'Enter') { clearTimeout(searchDebounceRef.current); runSearch() } }}
+                    placeholder="Search text…"
+                    style={{
+                      fontFamily: 'var(--font-mono)', fontSize: '0.8125rem',
+                      padding: '3px 24px 3px 8px', borderRadius: 4,
+                      border: '1px solid var(--color-border-strong)',
+                      backgroundColor: 'var(--color-input-bg)', color: 'var(--color-ink)',
+                      width: 140, outline: 'none',
+                    }}
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => { clearTimeout(searchDebounceRef.current); setSearchQuery(''); setSearchResults([]) }}
+                      style={{ ...iconBtn, position: 'absolute', right: 2, padding: 2 }}
+                      title="Clear"
+                    >
+                      <X size={11} />
+                    </button>
+                  )}
+                </div>
+                <button onClick={() => { clearTimeout(searchDebounceRef.current); runSearch() }} style={iconBtn} title="Search"><Search size={13} strokeWidth={1.5} /></button>
                 {searchResults.length > 0 && (
                   <>
                     <button onClick={() => stepSearch(-1)} style={iconBtn}><ChevronLeft size={12} /></button>
@@ -762,11 +992,13 @@ export default function PDFToolSuite() {
                 backgroundColor: 'var(--color-bg)', display: 'flex',
                 justifyContent: 'center', alignItems: 'flex-start', padding: 24,
               }}>
-                <canvas ref={canvasRef} style={{ boxShadow: 'var(--shadow-md)', borderRadius: 2, backgroundColor: '#fff', display: 'block' }} />
+                <div style={{ position: 'relative', display: 'inline-block', boxShadow: 'var(--shadow-md)', borderRadius: 2 }}>
+                  <canvas ref={canvasRef} style={{ backgroundColor: '#fff', display: 'block', borderRadius: 2 }} />
+                  <canvas ref={overlayRef} style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', borderRadius: 2 }} />
+                </div>
               </div>
             </div>
-          </div>
-        )}
+        </div>
 
         {/* ── PAGES ── */}
         {tab === 'pages' && (
@@ -880,12 +1112,78 @@ export default function PDFToolSuite() {
                   <input value={wmText} onChange={e => setWmText(e.target.value)} style={fieldInput} placeholder="e.g. CONFIDENTIAL" />
                 </label>
                 <label style={labelWrap}>
+                  Position
+                  <select
+                    value={wmPosition}
+                    onChange={e => {
+                      const p = e.target.value
+                      setWmPosition(p)
+                      setWmRotation(p === 'diagonal' ? 45 : 0)
+                    }}
+                    style={fieldInput}
+                  >
+                    <option value="diagonal">Diagonal (center)</option>
+                    <option value="center">Center</option>
+                    <option value="top-left">Top Left</option>
+                    <option value="top-center">Top Center</option>
+                    <option value="top-right">Top Right</option>
+                    <option value="bottom-left">Bottom Left</option>
+                    <option value="bottom-center">Bottom Center</option>
+                    <option value="bottom-right">Bottom Right</option>
+                  </select>
+                </label>
+                <label style={labelWrap}>
+                  Rotation: {wmRotation}°
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+                    <input
+                      type="range" min={0} max={360} step={5} value={wmRotation}
+                      onChange={e => setWmRotation(Number(e.target.value))}
+                      style={{ flex: 1 }}
+                    />
+                    <input
+                      type="number" min={0} max={360} step={1} value={wmRotation}
+                      onChange={e => setWmRotation(Math.min(360, Math.max(0, Number(e.target.value))))}
+                      style={{ ...fieldInput, width: 56, padding: '4px 6px' }}
+                    />
+                  </div>
+                </label>
+                <label style={labelWrap}>
                   Apply to
                   <select value={wmPages} onChange={e => setWmPages(e.target.value)} style={fieldInput}>
                     <option value="all">All pages</option>
                     <option value="odd">Odd pages only</option>
                     <option value="even">Even pages only</option>
+                    <option value="custom">Custom pages…</option>
                   </select>
+                  {wmPages === 'custom' && (() => {
+                    const preview = wmPagesCustom.trim()
+                      ? parsePageExpression(wmPagesCustom, numPages)
+                      : null
+                    const invalid = preview !== null && preview.size === 0
+                    return (
+                      <div style={{ marginTop: 6 }}>
+                        <input
+                          value={wmPagesCustom}
+                          onChange={e => setWmPagesCustom(e.target.value)}
+                          placeholder="e.g. 1,5-7,32,70,3-1"
+                          style={{
+                            ...fieldInput,
+                            borderColor: invalid ? 'var(--color-error)' : 'var(--color-border-strong)',
+                          }}
+                        />
+                        <p style={{
+                          fontFamily: 'var(--font-mono)', fontSize: '0.7rem', margin: '4px 0 0',
+                          color: invalid ? 'var(--color-error)' : 'var(--color-ink-faint)',
+                        }}>
+                          {preview && !invalid
+                            ? `${preview.size} page${preview.size !== 1 ? 's' : ''} targeted: ${[...preview].sort((a,b)=>a-b).join(', ')}`
+                            : invalid
+                              ? `No valid pages (doc has ${numPages} pages)`
+                              : 'Comma-separated · ranges use dash · reverse OK'}
+                        </p>
+                      </div>
+                    )
+                  })()}
                 </label>
                 <label style={labelWrap}>
                   Font Size: {wmSize}pt

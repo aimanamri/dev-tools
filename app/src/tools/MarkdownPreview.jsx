@@ -257,7 +257,7 @@ const STYLES = `
   padding: 1rem; font-family: var(--font-mono); font-size: 0.8125rem;
   line-height: 1.65; color: var(--color-ink); background: var(--color-input-bg); overflow-y: auto;
 }
-.mdt-preview-scroll { flex: 1; overflow-y: auto; padding: 1.25rem 1.5rem; background: radial-gradient(ellipse at 35% 20%, oklch(0.27 0.052 42) 0%, oklch(0.19 0.044 34) 50%, oklch(0.13 0.028 28) 100%); }
+.mdt-preview-scroll { flex: 1; overflow-y: auto; padding: 1.25rem 1.5rem; background: radial-gradient(ellipse at 35% 20%, oklch(0.255 0.050 258) 0%, oklch(0.185 0.042 256) 50%, oklch(0.135 0.030 252) 100%); }
 
 /* Prose */
 .md-prose { max-width: 100%; }
@@ -310,33 +310,33 @@ const STYLES = `
 .mdt-preview-scroll .md-prose h1,
 .mdt-preview-scroll .md-prose h2,
 .mdt-preview-scroll .md-prose h3,
-.mdt-preview-scroll .md-prose h4 { color: oklch(0.940 0.014 45); }
-.mdt-preview-scroll .md-prose h2 { border-bottom-color: oklch(0.240 0.040 34); }
+.mdt-preview-scroll .md-prose h4 { color: oklch(0.945 0.014 250); }
+.mdt-preview-scroll .md-prose h2 { border-bottom-color: oklch(0.300 0.040 255); }
 .mdt-preview-scroll .md-prose h5,
-.mdt-preview-scroll .md-prose h6 { color: oklch(0.650 0.028 42); }
-.mdt-preview-scroll .md-prose p { color: oklch(0.920 0.012 45); }
-.mdt-preview-scroll .md-prose li { color: oklch(0.920 0.012 45); }
-.mdt-preview-scroll .md-prose a { color: oklch(0.720 0.108 215); }
-.mdt-preview-scroll .md-prose del { color: oklch(0.650 0.028 42); }
-.mdt-preview-scroll .md-prose blockquote { border-left-color: oklch(0.380 0.055 40); }
-.mdt-preview-scroll .md-prose blockquote p { color: oklch(0.650 0.028 42); }
-.mdt-preview-scroll .md-prose hr { border-top-color: oklch(0.240 0.040 34); }
-.mdt-preview-scroll .md-prose code:not(pre code) { background: oklch(0.200 0.045 35); border-color: oklch(0.240 0.040 34); color: oklch(0.920 0.012 45); }
-.mdt-preview-scroll .md-prose pre { background: oklch(0.160 0.038 32); border-color: oklch(0.320 0.050 38); }
+.mdt-preview-scroll .md-prose h6 { color: oklch(0.680 0.030 250); }
+.mdt-preview-scroll .md-prose p { color: oklch(0.910 0.014 250); }
+.mdt-preview-scroll .md-prose li { color: oklch(0.910 0.014 250); }
+.mdt-preview-scroll .md-prose a { color: oklch(0.770 0.110 235); }
+.mdt-preview-scroll .md-prose del { color: oklch(0.680 0.030 250); }
+.mdt-preview-scroll .md-prose blockquote { border-left-color: oklch(0.440 0.070 255); }
+.mdt-preview-scroll .md-prose blockquote p { color: oklch(0.680 0.030 250); }
+.mdt-preview-scroll .md-prose hr { border-top-color: oklch(0.300 0.040 255); }
+.mdt-preview-scroll .md-prose code:not(pre code) { background: oklch(0.235 0.045 255); border-color: oklch(0.300 0.040 255); color: oklch(0.910 0.014 250); }
+.mdt-preview-scroll .md-prose pre { background: oklch(0.165 0.040 255); border-color: oklch(0.320 0.050 258); }
 .mdt-preview-scroll .md-prose pre .hljs { background: transparent; }
-.mdt-preview-scroll .md-prose th { background: oklch(0.160 0.038 32); border-color: oklch(0.240 0.040 34); color: oklch(0.920 0.012 45); }
-.mdt-preview-scroll .md-prose td { border-color: oklch(0.240 0.040 34); color: oklch(0.920 0.012 45); }
-.mdt-preview-scroll .md-prose tr:nth-child(even) td { background: oklch(0.150 0.035 30); }
-.mdt-preview-scroll .md-prose .mermaid-rendered { background: oklch(0.160 0.038 32); border-color: oklch(0.320 0.050 38); }
+.mdt-preview-scroll .md-prose th { background: oklch(0.165 0.040 255); border-color: oklch(0.300 0.040 255); color: oklch(0.910 0.014 250); }
+.mdt-preview-scroll .md-prose td { border-color: oklch(0.300 0.040 255); color: oklch(0.910 0.014 250); }
+.mdt-preview-scroll .md-prose tr:nth-child(even) td { background: oklch(0.175 0.036 252); }
+.mdt-preview-scroll .md-prose .mermaid-rendered { background: oklch(0.165 0.040 255); border-color: oklch(0.320 0.050 258); }
 .mdt-preview-scroll .md-prose .mermaid-rendered svg text,
-.mdt-preview-scroll .md-prose .mermaid-rendered svg tspan { fill: oklch(0.920 0.012 45) !important; }
+.mdt-preview-scroll .md-prose .mermaid-rendered svg tspan { fill: oklch(0.910 0.014 250) !important; }
 .mdt-preview-scroll .md-prose .mermaid-rendered .nodeLabel,
 .mdt-preview-scroll .md-prose .mermaid-rendered foreignObject div,
-.mdt-preview-scroll .md-prose .mermaid-rendered foreignObject span { color: oklch(0.920 0.012 45) !important; }
-.mdt-preview-scroll .md-prose .mermaid-pending { background: oklch(0.160 0.038 32); border-color: oklch(0.240 0.040 34); color: oklch(0.440 0.025 38); }
-.mdt-preview-scroll .md-prose .mermaid-error { background: oklch(0.160 0.038 32); border-color: oklch(0.240 0.040 34); }
+.mdt-preview-scroll .md-prose .mermaid-rendered foreignObject span { color: oklch(0.910 0.014 250) !important; }
+.mdt-preview-scroll .md-prose .mermaid-pending { background: oklch(0.165 0.040 255); border-color: oklch(0.300 0.040 255); color: oklch(0.460 0.028 250); }
+.mdt-preview-scroll .md-prose .mermaid-error { background: oklch(0.165 0.040 255); border-color: oklch(0.300 0.040 255); }
 /* hljs syntax — always dark in preview pane */
-.mdt-preview-scroll .md-prose .hljs { color: oklch(0.920 0.012 45); }
+.mdt-preview-scroll .md-prose .hljs { color: oklch(0.910 0.014 250); }
 .mdt-preview-scroll .md-prose .hljs-keyword,
 .mdt-preview-scroll .md-prose .hljs-selector-tag { color: #c792ea; }
 .mdt-preview-scroll .md-prose .hljs-string { color: #c3e88d; }

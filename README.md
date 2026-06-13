@@ -6,12 +6,15 @@
 
 A single-page application built with React and Vite that bundles a suite of everyday developer tools into one clean interface. Every operation runs entirely in your browser. No data is sent to any server, no accounts, no tracking.
 
+The dashboard introduces each tool with an animated scrollytelling flow: a sticky faux-browser window crossfades between live tool previews as you scroll, driven by framer-motion. Theme-aware chrome (white panels in light mode, blue-slate gradient in dark mode) uses a full OKLCH design token system.
+
 ---
 
 ## Features at a glance
 
 - **100% client-side** — files, passwords, and keys never leave your device
-- **Dark / light mode** — persisted to `localStorage`, respects system preference on first load
+- **Animated dashboard** — scrollytelling hero + sticky per-tool showcase powered by framer-motion; respects `prefers-reduced-motion`
+- **Dark / light mode** — persisted to `localStorage`, respects system preference on first load; dark theme uses a static blue-slate radial gradient workspace
 - **Responsive layout** — collapsible sidebar, works on desktop and tablet
 - **Keyboard-friendly** — inputs trigger actions on Enter, copy buttons give instant feedback
 - **Fast builds** — Vite + Rolldown, code-split per tool, lazy-loaded diagram chunks
@@ -85,10 +88,11 @@ A single-page application built with React and Vite that bundles a suite of ever
 
 | Layer | Choice |
 |---|---|
-| Framework | React 18 |
+| Framework | React 19 |
 | Build tool | Vite 8 (Rolldown bundler) |
 | Styling | Tailwind CSS v3 + OKLCH CSS custom properties |
 | Routing | React Router v7 |
+| Animation | framer-motion 12 |
 | Icons | Lucide React (1.5 px stroke) |
 | Fonts | Inter (UI) + JetBrains Mono (code/data) via Google Fonts |
 | PDF rendering | PDF.js (`pdfjs-dist`) |

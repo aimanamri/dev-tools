@@ -60,6 +60,7 @@ function StatusBanner({ type, message, onClose }) {
 
 function PasswordInput({ label, hint, value, onChange, onEnter, placeholder }) {
   const [visible, setVisible] = useState(false)
+  const [focused, setFocused] = useState(false)
   return (
     <div>
       <label style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-ink)', marginBottom: 4 }}>
@@ -67,20 +68,32 @@ function PasswordInput({ label, hint, value, onChange, onEnter, placeholder }) {
         {hint && <span style={{ fontWeight: 400, color: 'var(--color-ink-faint)', marginLeft: 6, fontSize: '0.75rem' }}>{hint}</span>}
       </label>
       <div style={{ position: 'relative' }}>
+        <Lock
+          size={14} strokeWidth={1.5}
+          style={{
+            position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)',
+            color: focused ? 'var(--color-primary)' : 'var(--color-ink-faint)',
+            transition: 'color var(--dur-fast) var(--ease-out-quart)', pointerEvents: 'none',
+          }}
+        />
         <input
           type={visible ? 'text' : 'password'}
           value={value}
           onChange={e => onChange(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && onEnter?.()}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           placeholder={placeholder}
           autoComplete="off"
           style={{
             width: '100%', boxSizing: 'border-box',
-            padding: '7px 36px 7px 12px',
-            fontFamily: 'var(--font-mono)', fontSize: '0.875rem',
+            padding: '8px 36px 8px 34px',
+            fontFamily: 'var(--font-mono)', fontSize: '0.875rem', letterSpacing: visible ? 'normal' : '0.08em',
             background: 'var(--color-input-bg)',
-            border: '1px solid var(--color-border-strong)',
+            border: `1px solid ${focused ? 'var(--color-primary)' : 'var(--color-border-strong)'}`,
+            boxShadow: focused ? '0 0 0 3px var(--color-primary-glow)' : 'none',
             borderRadius: 6, color: 'var(--color-ink)', outline: 'none',
+            transition: 'border-color var(--dur-fast) var(--ease-out-quart), box-shadow var(--dur-fast) var(--ease-out-quart)',
           }}
         />
         <button
@@ -355,18 +368,34 @@ export default function PDFSecurityTool() {
       onClick={() => document.getElementById('pdf-sec-input')?.click()}
       style={{
         border: `2px dashed ${dragging ? 'var(--color-primary)' : 'var(--color-border-strong)'}`,
-        borderRadius: 8, padding: '40px 24px', textAlign: 'center', cursor: 'pointer',
+        borderRadius: 12, padding: '44px 24px', textAlign: 'center', cursor: 'pointer',
         background: dragging
           ? 'color-mix(in oklch, var(--color-primary) 8%, var(--color-surface))'
           : 'var(--color-surface)',
-        transition: 'border-color 120ms ease-out, background 120ms ease-out',
+        boxShadow: dragging ? '0 0 0 4px var(--color-primary-glow)' : 'none',
+        transform: dragging ? 'scale(1.01)' : 'scale(1)',
+        transition: 'border-color var(--dur-fast) var(--ease-out-quart), background var(--dur-fast) var(--ease-out-quart), box-shadow var(--dur-normal) var(--ease-out-quart), transform var(--dur-normal) var(--ease-out-quart)',
         marginBottom: 20,
       }}>
       <input id="pdf-sec-input" type="file" accept=".pdf,application/pdf" style={{ display: 'none' }}
         onChange={e => { if (e.target.files[0]) loadFile(e.target.files[0]) }} />
-      <Upload size={28} strokeWidth={1.5} style={{ color: 'var(--color-ink-faint)', display: 'block', margin: '0 auto 12px' }} />
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        width: 52, height: 52, borderRadius: 16, marginBottom: 12,
+        background: dragging ? 'var(--color-primary)' : 'var(--color-surface-raised)',
+        transition: 'background var(--dur-fast) var(--ease-out-quart)',
+      }}>
+        <Upload
+          size={24} strokeWidth={1.5}
+          style={{
+            color: dragging ? 'var(--color-ink-on-primary)' : 'var(--color-ink-faint)',
+            transform: dragging ? 'translateY(-2px)' : 'translateY(0)',
+            transition: 'color var(--dur-fast) var(--ease-out-quart), transform var(--dur-normal) var(--ease-out-quart)',
+          }}
+        />
+      </span>
       <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--color-ink-muted)', margin: '0 0 4px' }}>
-        Drop a PDF here or <span style={{ color: 'var(--color-primary)', fontWeight: 500 }}>click to browse</span>
+        {dragging ? 'Release to load' : <>Drop a PDF here or <span style={{ color: 'var(--color-primary)', fontWeight: 500 }}>click to browse</span></>}
       </p>
       <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--color-ink-faint)', margin: 0 }}>
         .pdf · max 200 MB · never uploaded

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Toolbar from './Toolbar'
@@ -29,6 +29,7 @@ export default function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
   const { isDark, toggle: toggleTheme } = useTheme()
+  const scrollRef = useRef(null)
 
   const title = TOOL_TITLES[location.pathname] ?? null
 
@@ -40,6 +41,7 @@ export default function AppShell() {
 
   return (
     <div
+      id="app-root"
       className="flex h-screen w-screen overflow-hidden"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
@@ -98,10 +100,11 @@ export default function AppShell() {
         />
 
         <main
+          ref={scrollRef}
           className="flex-1 overflow-y-auto p-6"
-          style={{ backgroundColor: 'var(--color-bg)' }}
+          style={{ backgroundColor: 'transparent' }}
         >
-          <Outlet />
+          <Outlet context={{ scrollRef }} />
         </main>
       </div>
     </div>

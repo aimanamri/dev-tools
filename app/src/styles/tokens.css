@@ -1,25 +1,31 @@
-/* OKLCH Design Tokens — from DESIGN.md */
+/* OKLCH Design Tokens */
 :root {
-  /* Surfaces */
-  --color-bg:               oklch(0.978 0.008 60);
-  --color-surface:          oklch(0.963 0.007 28);
-  --color-surface-raised:   oklch(0.946 0.010 28);
-  --color-sidebar:          oklch(0.158 0.032 28);
-  --color-sidebar-surface:  oklch(0.198 0.028 28);
-  --color-toolbar:          oklch(0.168 0.030 28);
+  /* Type + elevation: referenced via var() throughout the tool components */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.09), 0 1px 2px oklch(0 0 0 / 0.06);
+  --shadow-md: 0 4px 8px oklch(0 0 0 / 0.10), 0 2px 4px oklch(0 0 0 / 0.06);
 
-  /* Text */
-  --color-ink:              oklch(0.175 0.022 28);
-  --color-ink-muted:        oklch(0.440 0.018 28);
-  --color-ink-faint:        oklch(0.640 0.010 28);
-  --color-ink-on-sidebar:   oklch(0.920 0.014 28);
-  --color-ink-sidebar-muted: oklch(0.600 0.020 28);
+  /* Surfaces — cool near-white; panels are white and separated by borders */
+  --color-bg:               oklch(0.985 0.003 250);
+  --color-surface:          oklch(1.000 0.000 0);
+  --color-surface-raised:   oklch(0.968 0.005 250);
+  --color-sidebar:          oklch(1.000 0.000 0);
+  --color-sidebar-surface:  oklch(0.945 0.018 233);
+  --color-toolbar:          oklch(1.000 0.000 0);
+
+  /* Text — deep cool charcoal for high contrast on white */
+  --color-ink:              oklch(0.270 0.020 255);
+  --color-ink-muted:        oklch(0.450 0.018 255);
+  --color-ink-faint:        oklch(0.540 0.016 255);
+  --color-ink-on-sidebar:   oklch(0.270 0.020 255);
+  --color-ink-sidebar-muted: oklch(0.450 0.018 255);
   --color-ink-on-primary:   oklch(1.000 0.000 0);
 
-  /* Brand */
-  --color-primary:          oklch(0.489 0.190 28.3);
-  --color-primary-hover:    oklch(0.440 0.190 28.3);
-  --color-primary-subtle:   oklch(0.940 0.035 28);
+  /* Brand — muted slate blue (~#4F6D7A), dark enough for white button text */
+  --color-primary:          oklch(0.470 0.055 233);
+  --color-primary-hover:    oklch(0.415 0.058 233);
+  --color-primary-subtle:   oklch(0.945 0.022 233);
 
   /* Accent */
   --color-accent:           oklch(0.460 0.115 215);
@@ -31,36 +37,48 @@
   --color-error:            oklch(0.490 0.195 18);
   --color-info:             oklch(0.480 0.120 230);
 
-  /* Borders */
-  --color-border:           oklch(0.880 0.010 28);
-  --color-border-strong:    oklch(0.780 0.018 28);
-  --color-border-sidebar:   oklch(0.240 0.025 28);
+  /* Borders — clear light-to-medium gray for defined panels */
+  --color-border:           oklch(0.910 0.006 255);
+  --color-border-strong:    oklch(0.855 0.010 255);
+  --color-border-sidebar:   oklch(0.892 0.008 255);
 
   /* Input / editor surfaces */
   --color-input-bg:         oklch(1.000 0.000 0);
+
+  /* Motion: exponential ease-out curves, no bounce */
+  --ease-out-quart:         cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-out-expo:          cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast:               120ms;
+  --dur-normal:             200ms;
+  --dur-slow:               420ms;
+
+  /* Interaction accents: translucent primary for glow/ring/wash */
+  --color-primary-glow:     oklch(0.470 0.055 233 / 0.20);
+  --color-primary-ring:     oklch(0.470 0.055 233 / 0.38);
+  --color-surface-wash:     oklch(0.470 0.055 233 / 0.06);
 }
 
 html.dark {
-  /* Surfaces */
-  --color-bg:               oklch(0.118 0.000 0);
-  --color-surface:          oklch(0.165 0.020 28);
-  --color-surface-raised:   oklch(0.195 0.018 28);
-  --color-sidebar:          oklch(0.082 0.018 28);
-  --color-sidebar-surface:  oklch(0.122 0.022 28);
-  --color-toolbar:          oklch(0.090 0.016 28);
+  /* Surfaces — dark blue-slate to match the markdown preview pane */
+  --color-bg:               oklch(0.150 0.028 255);
+  --color-surface:          oklch(0.190 0.034 255);
+  --color-surface-raised:   oklch(0.225 0.036 255);
+  --color-sidebar:          oklch(0.115 0.026 255);
+  --color-sidebar-surface:  oklch(0.165 0.034 255);
+  --color-toolbar:          oklch(0.125 0.028 255);
 
   /* Text */
-  --color-ink:              oklch(0.940 0.010 28);
-  --color-ink-muted:        oklch(0.620 0.015 28);
-  --color-ink-faint:        oklch(0.420 0.010 28);
-  --color-ink-on-sidebar:   oklch(0.900 0.012 28);
-  --color-ink-sidebar-muted: oklch(0.550 0.018 28);
+  --color-ink:              oklch(0.945 0.012 250);
+  --color-ink-muted:        oklch(0.670 0.022 250);
+  --color-ink-faint:        oklch(0.500 0.020 255);
+  --color-ink-on-sidebar:   oklch(0.915 0.014 250);
+  --color-ink-sidebar-muted: oklch(0.620 0.024 250);
   --color-ink-on-primary:   oklch(1.000 0.000 0);
 
-  /* Brand */
-  --color-primary:          oklch(0.560 0.180 28.3);
-  --color-primary-hover:    oklch(0.610 0.170 28.3);
-  --color-primary-subtle:   oklch(0.195 0.055 28);
+  /* Brand — slate blue, brightened to read on the navy surfaces */
+  --color-primary:          oklch(0.640 0.090 228);
+  --color-primary-hover:    oklch(0.690 0.085 228);
+  --color-primary-subtle:   oklch(0.275 0.055 235);
 
   /* Accent */
   --color-accent:           oklch(0.600 0.108 215);
@@ -73,12 +91,17 @@ html.dark {
   --color-info:             oklch(0.560 0.115 230);
 
   /* Borders */
-  --color-border:           oklch(0.255 0.015 28);
-  --color-border-strong:    oklch(0.340 0.022 28);
-  --color-border-sidebar:   oklch(0.195 0.022 28);
+  --color-border:           oklch(0.300 0.024 255);
+  --color-border-strong:    oklch(0.390 0.032 255);
+  --color-border-sidebar:   oklch(0.235 0.030 255);
 
   /* Input / editor surfaces */
-  --color-input-bg:         oklch(0.165 0.020 28);
+  --color-input-bg:         oklch(0.185 0.032 255);
+
+  /* Interaction accents: translucent primary for glow/ring/wash */
+  --color-primary-glow:     oklch(0.640 0.090 228 / 0.28);
+  --color-primary-ring:     oklch(0.640 0.090 228 / 0.45);
+  --color-surface-wash:     oklch(0.640 0.090 228 / 0.10);
 
   /* Native form controls */
   color-scheme:             dark;

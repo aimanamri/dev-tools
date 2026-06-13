@@ -21,10 +21,10 @@ function NavItem({ path, label, icon: Icon, collapsed }) {
       style={({ isActive }) => ({
         display: 'flex',
         alignItems: 'center',
-        gap: 8,
+        gap: 10,
         justifyContent: collapsed ? 'center' : 'flex-start',
-        borderRadius: 3,
-        padding: '6px 12px',
+        borderRadius: 4,
+        padding: '9px 12px',
         overflow: 'hidden',
         // Left border always present — only color changes, avoids layout shift
         borderLeft: `2px solid ${isActive ? 'var(--color-primary)' : 'transparent'}`,
@@ -98,6 +98,7 @@ export default function Sidebar({ collapsed }) {
         flexDirection: 'column',
         height: '100%',
         backgroundColor: 'var(--color-sidebar)',
+        borderRight: '1px solid var(--color-border-sidebar)',
         overflow: 'hidden',
       }}
     >
@@ -163,7 +164,7 @@ export default function Sidebar({ collapsed }) {
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: 2,
+            gap: 4,
             padding: '0 8px',
           }}
         >

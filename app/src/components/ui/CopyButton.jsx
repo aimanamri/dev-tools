@@ -20,7 +20,13 @@ export default function CopyButton({ text, label = 'Copy' }) {
       variant="secondary"
       onClick={handle}
       disabled={!text}
-      icon={copied ? <Check size={13} strokeWidth={2} /> : <Copy size={13} strokeWidth={1.5} />}
+      icon={
+        copied ? (
+          <Check size={13} strokeWidth={2} className="pop-in" />
+        ) : (
+          <Copy size={13} strokeWidth={1.5} />
+        )
+      }
       style={copied ? { color: 'var(--color-success)', borderColor: 'oklch(0.480 0.140 145 / 0.4)' } : {}}
     >
       {copied ? 'Copied' : label}
