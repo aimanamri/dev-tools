@@ -200,7 +200,7 @@ export default function Sidebar({ collapsed }) {
             transition: `opacity 100ms ${EASE}`,
           }}
         >
-          v1.0.0
+          v1.1.0
         </p>
       </div>
     </aside>
