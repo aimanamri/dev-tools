@@ -207,7 +207,7 @@ export default function PDFSecurityTool() {
   async function checkEncryption(bytes) {
     setPdfEncStatus('checking')
     try {
-      const doc = await pdfjsLib.getDocument({ data: bytes.slice(), password: '' }).promise
+      const doc = await pdfjsLib.getDocument({ isEvalSupported: false, data: bytes.slice(), password: '' }).promise
       doc.destroy()
       setPdfEncStatus('unencrypted')
     } catch (e) {
@@ -302,6 +302,7 @@ export default function PDFSecurityTool() {
       let pdfJsDoc
       try {
         pdfJsDoc = await pdfjsLib.getDocument({
+          isEvalSupported: false,
           data: file.bytes.slice(),
           password: unlockPass || '',
         }).promise

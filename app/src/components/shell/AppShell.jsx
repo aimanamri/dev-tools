@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { Suspense, useState, useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Toolbar from './Toolbar'
@@ -104,7 +104,15 @@ export default function AppShell() {
           className="flex-1 overflow-y-auto p-6"
           style={{ backgroundColor: 'transparent' }}
         >
-          <Outlet context={{ scrollRef }} />
+          <Suspense
+            fallback={
+              <p role="status" className="text-sm" style={{ color: 'var(--color-ink-muted)' }}>
+                Loading the tool.
+              </p>
+            }
+          >
+            <Outlet context={{ scrollRef }} />
+          </Suspense>
         </main>
       </div>
     </div>

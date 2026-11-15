@@ -17,20 +17,27 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.html [QSA,L]
 
 # ── Security headers ──────────────────────────────────────────────────────────
+# Keep these values the same as nginx.conf and the preview headers in vite.config.js.
 <IfModule mod_headers.c>
   # Prevent MIME-type sniffing
   Header always set X-Content-Type-Options "nosniff"
 
-  # Clickjacking protection (also covered by frame-ancestors in CSP below)
+  # Clickjacking protection (frame-ancestors in the CSP does the same)
   Header always set X-Frame-Options "DENY"
 
-  # Limit referrer leakage to third parties (e.g. Google Fonts)
+  # Do not send the page address to other sites
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
-  # Deny browser APIs not used by this tool
-  Header always set Permissions-Policy "camera=(), microphone=(), usb=(), geolocation=()"
+  # Deny browser APIs that this site does not use
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), usb=(), payment=(), interest-cohort=()"
+
+  # Use HTTPS only, for one year
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+  # Isolate the page from windows that other sites open
+  Header always set Cross-Origin-Opener-Policy "same-origin"
 
   # Content Security Policy
-  # script-src hash covers the inline theme-detection script in index.html
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval' 'sha256-OqLmGeF8Tx8EKtYXpT0zJ+EoW7nIBk6fpOYq2h3bjjY='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'none'; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+  # All scripts, fonts and styles come from this origin. No eval. No external hosts.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' data: blob:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
 </IfModule>

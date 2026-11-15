@@ -284,7 +284,7 @@ export default function PDFToolSuite() {
     setStatus({ type: '', msg: '' })
     try {
       const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes)
-      const doc = await pdfjsLib.getDocument({ data: arr.slice() }).promise
+      const doc = await pdfjsLib.getDocument({ isEvalSupported: false, data: arr.slice() }).promise
       const n = doc.numPages
 
       let fields = []
@@ -521,7 +521,7 @@ export default function PDFToolSuite() {
       const pages = await newDoc.copyPages(src, kept.map(p => p.origIdx))
       pages.forEach(p => newDoc.addPage(p))
       const saved = new Uint8Array(await newDoc.save())
-      const newPdfJs = await pdfjsLib.getDocument({ data: saved.slice() }).promise
+      const newPdfJs = await pdfjsLib.getDocument({ isEvalSupported: false, data: saved.slice() }).promise
       const n = newPdfJs.numPages
       setWorkBytes(saved)
       setPdfJs(newPdfJs)
@@ -562,7 +562,7 @@ export default function PDFToolSuite() {
         copied.forEach(p => base.addPage(p))
       }
       const saved = new Uint8Array(await base.save())
-      const newPdfJs = await pdfjsLib.getDocument({ data: saved.slice() }).promise
+      const newPdfJs = await pdfjsLib.getDocument({ isEvalSupported: false, data: saved.slice() }).promise
       const n = newPdfJs.numPages
       setWorkBytes(saved)
       setPdfJs(newPdfJs)
@@ -654,7 +654,7 @@ export default function PDFToolSuite() {
         })
       })
       const saved = new Uint8Array(await doc.save())
-      const newPdfJs = await pdfjsLib.getDocument({ data: saved.slice() }).promise
+      const newPdfJs = await pdfjsLib.getDocument({ isEvalSupported: false, data: saved.slice() }).promise
       setWorkBytes(saved)
       setPdfJs(newPdfJs)
       setStatus({ type: 'success', msg: 'Watermark applied.' })
@@ -687,7 +687,7 @@ export default function PDFToolSuite() {
       })
       form.flatten()
       const saved = new Uint8Array(await doc.save())
-      const newPdfJs = await pdfjsLib.getDocument({ data: saved.slice() }).promise
+      const newPdfJs = await pdfjsLib.getDocument({ isEvalSupported: false, data: saved.slice() }).promise
       setWorkBytes(saved)
       setPdfJs(newPdfJs)
       setFormFields([])

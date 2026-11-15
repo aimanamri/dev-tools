@@ -531,7 +531,7 @@ export default function BlowfishTranspiler() {
       const result = hljs.highlight(output, { language: lang })
       return DOMPurify.sanitize(result.value, { FORCE_BODY: true, ALLOWED_TAGS: ['span'], ALLOWED_ATTR: ['class'] })
     } catch {
-      return DOMPurify.sanitize(output)
+      return output.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
     }
   }, [output, mode])
 
@@ -1083,7 +1083,7 @@ export default function BlowfishTranspiler() {
             {output ? (
               <pre className="blowfish-pre">
                 <code
-                  dangerouslySetInnerHTML={{ __html: highlightedOutput || output }}
+                  dangerouslySetInnerHTML={{ __html: highlightedOutput }}
                 />
               </pre>
             ) : error ? (

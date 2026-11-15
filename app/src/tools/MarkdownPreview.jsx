@@ -54,6 +54,12 @@ let mermaidSeq = 0
 
 // ── Markdown → HTML pipeline ─────────────────────────────────────────────────
 
+const SANITIZE_OPTS = {
+  ALLOW_DATA_ATTR: true,
+  ADD_ATTR: ['class', 'target'],
+  FORCE_BODY: true,
+}
+
 function processMarkdown(src) {
   ensureMarked()
   const map = new Map()
@@ -75,11 +81,7 @@ function processMarkdown(src) {
 
   let html = marked.parse(text)
 
-  html = DOMPurify.sanitize(html, {
-    ALLOW_DATA_ATTR: true,
-    ADD_ATTR: ['class', 'target'],
-    FORCE_BODY: true,
-  })
+  html = DOMPurify.sanitize(html, SANITIZE_OPTS)
 
   for (const [k, { math, display }] of map) {
     try {
@@ -89,6 +91,10 @@ function processMarkdown(src) {
       html = html.replace(k, () => `<code>${display ? '$$' : '$'}${math}${display ? '$$' : '$'}</code>`)
     }
   }
+
+  // The math HTML goes in after the first pass. Clean the result again,
+  // because a placeholder can be in an attribute or the fallback can hold raw text.
+  if (map.size) html = DOMPurify.sanitize(html, SANITIZE_OPTS)
 
   return html
 }
@@ -440,7 +446,7 @@ export default function MarkdownPreview() {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Exported Document</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.17.0/dist/katex.min.css" integrity="sha384-vlBdW0r3AcZO/HboRPznQNowvexd3fY8qHOWkBi5q7KGgqJ+F48+DceybYmrVbmB" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.1/dist/katex.min.css" integrity="sha384-WwGtaC6ywCHxA5cstpj/3+xIZvTez8dq2IcBQaXRkenHZ7FVVq1ZROtURwfbtTlG" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github.css" integrity="sha384-Uhn9VRzdRxBVYRT2aPFl8ECva7znqyZwWiqpE3v4GTBe8y2XrpwTWZtU1U5vujcN" crossorigin="anonymous">
 <style>
   body{font-family:system-ui,sans-serif;max-width:800px;margin:2rem auto;padding:0 1.5rem;color:#1a1a1a;line-height:1.6}

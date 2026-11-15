@@ -97,6 +97,12 @@ function ensureMermaid() {
 
 let mermaidSeq = 0
 
+const SANITIZE_OPTS = {
+  ALLOW_DATA_ATTR: true,
+  ADD_ATTR: ['class', 'target'],
+  FORCE_BODY: true,
+}
+
 function processMarkdown(src) {
   ensureMarked()
   const map = new Map()
@@ -115,11 +121,7 @@ function processMarkdown(src) {
   })
 
   let html = marked.parse(text)
-  html = DOMPurify.sanitize(html, {
-    ALLOW_DATA_ATTR: true,
-    ADD_ATTR: ['class', 'target'],
-    FORCE_BODY: true,
-  })
+  html = DOMPurify.sanitize(html, SANITIZE_OPTS)
 
   for (const [k, { math, display }] of map) {
     try {
@@ -133,6 +135,10 @@ function processMarkdown(src) {
       )
     }
   }
+
+  // The math HTML goes in after the first pass. Clean the result again,
+  // because a placeholder can be in an attribute or the fallback can hold raw text.
+  if (map.size) html = DOMPurify.sanitize(html, SANITIZE_OPTS)
   return html
 }
 
