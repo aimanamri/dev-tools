@@ -4,38 +4,40 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Primary meta -->
-    <title>Dev Tools - Free Browser-Based Developer Utilities</title>
-    <meta name="description" content="19 free developer utilities that run entirely in your browser. JSON formatter, PDF tools, QR code generator, Base64 converter, subnet calculator, timestamp converter, Markdown preview, and more. No server, no sign-up, no tracking." />
-    <meta name="keywords" content="developer tools, JSON formatter, PDF encrypt, QR code generator, Base64 converter, subnet calculator, timestamp converter, Markdown preview, cron generator, IP address converter, timezone converter, browser tools, free dev tools" />
+    <!-- Primary meta. build/seo-plugin.js sets the title, description and URLs for each page from src/site/meta.js. -->
+    <title>Dev Tools: Free Developer Tools That Run in Your Browser</title>
+    <meta name="description" content="" />
     <meta name="author" content="Aiman Amri" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://devtools.aimanuddin.com/" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://devtools.aimanuddin.com/" />
-    <meta property="og:title" content="Dev Tools - Free Browser-Based Developer Utilities" />
-    <meta property="og:description" content="19 free developer utilities that run entirely in your browser. JSON formatter, PDF tools, QR code generator, Base64 converter, subnet calculator, and more. No server, no sign-up, no tracking." />
-    <meta property="og:image" content="https://devtools.aimanuddin.com/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="Dev Tools" />
     <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://devtools.aimanuddin.com/" />
+    <meta property="og:title" content="" />
+    <meta property="og:description" content="" />
+    <meta property="og:image" content="https://devtools.aimanuddin.com/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The Dev Tools logo, a terminal window with a prompt, and the text: 19 developer tools that run in your browser." />
 
-    <!-- Twitter Card -->
+    <!-- X (Twitter) card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://devtools.aimanuddin.com/" />
-    <meta name="twitter:title" content="Dev Tools - Free Browser-Based Developer Utilities" />
-    <meta name="twitter:description" content="19 free developer utilities that run entirely in your browser. No server, no sign-up, no tracking." />
+    <meta name="twitter:title" content="" />
+    <meta name="twitter:description" content="" />
     <meta name="twitter:image" content="https://devtools.aimanuddin.com/og-image.png" />
+    <meta name="twitter:image:alt" content="The Dev Tools logo, a terminal window with a prompt, and the text: 19 developer tools that run in your browser." />
 
     <!-- Theme -->
-    <meta name="theme-color" content="#863bff" />
+    <meta name="theme-color" content="#3d6a80" />
 
     <!-- Icons -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Apple PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -48,59 +50,20 @@
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Dev Tools",
-      "url": "https://devtools.aimanuddin.com",
-      "description": "19 free developer utilities that run entirely in your browser. JSON formatter, PDF tools, QR code generator, Base64 converter, subnet calculator, timestamp converter, Markdown preview, and more.",
+      "url": "https://devtools.aimanuddin.com/",
+      "description": "Free developer tools that run in your browser. No server. No sign-up. No tracking.",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Any",
-      "browserRequirements": "Requires a modern web browser with JavaScript enabled",
-      "author": {
-        "@type": "Person",
-        "name": "Aiman Amri"
-      },
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "featureList": [
-        "JSON Formatter and Validator",
-        "JSON Converters (CSV, YAML, XML, Python)",
-        "JSON Tree Viewer",
-        "JSON Diff",
-        "PDF Encryption and Unlock",
-        "PDF Tool Suite (merge, split, watermark)",
-        "QR Code Generator",
-        "Base64 Converter",
-        "Password Generator",
-        "Timestamp Converter",
-        "Timezone Converter",
-        "IP Subnet Calculator",
-        "IP Address Converter",
-        "Markdown Preview",
-        "Cron Expression Generator",
-        "SVG Converter",
-        "Python Dict to JSON Converter",
-        "Blowfish Config Transpiler",
-        "Blowfish Article Generator"
-      ]
+      "browserRequirements": "A current web browser with JavaScript",
+      "isAccessibleForFree": true,
+      "license": "https://opensource.org/licenses/MIT",
+      "codeRepository": "https://github.com/aimanamri/dev-tools/",
+      "author": { "@type": "Person", "name": "Aiman Amri" },
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
     }
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
-    />
-    <script>
-      (function () {
-        var stored = localStorage.getItem('devtools-theme');
-        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (stored === 'dark' || (!stored && prefersDark)) {
-          document.documentElement.classList.add('dark');
-        }
-      })();
-    </script>
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>

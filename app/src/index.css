@@ -52,12 +52,43 @@
     opacity: 1;
   }
 
+  /* A clear focus ring for keyboard users on all controls */
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible,
+  [role="button"]:focus-visible,
+  [tabindex]:not([tabindex="-1"]):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+  main:focus { outline: none; }
+
+  .skip-link {
+    position: absolute;
+    left: 8px;
+    top: -48px;
+    z-index: 100;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: var(--color-primary);
+    color: var(--color-ink-on-primary);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: top 120ms ease-out;
+  }
+  .skip-link:focus { top: 8px; }
+
+  /* Keep pixel art sharp when the browser scales it */
+  .pixel-art { image-rendering: pixelated; }
+
+  .sidebar-repo-link:hover { color: var(--color-ink-on-sidebar) !important; }
+
   /* All clickable buttons get a pointer cursor */
   button:not(:disabled) {
     cursor: pointer;
   }
 
-  /* Select — theme-aware base styling */
+  /* Select: theme-aware base styling */
   select {
     background-color: var(--color-input-bg);
     color:            var(--color-ink);
@@ -82,7 +113,7 @@
     cursor: not-allowed;
   }
 
-  /* Textarea — consistent with Input.jsx */
+  /* Textarea: consistent with Input.jsx */
   textarea {
     background-color: var(--color-input-bg);
     color:            var(--color-ink);

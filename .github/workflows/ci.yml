@@ -1,0 +1,86 @@
+# Runs the linter, the unit tests, the production build and the Docker build
+# for each pull request and each push to main.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Stop an older run when a newer commit arrives on the same branch.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, test and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Make sure the build has the expected files
+        run: |
+          for f in index.html json/index.html disclaimer/index.html sitemap.xml robots.txt llms.txt sw.js og-image.png favicon.ico .htaccess; do
+            test -f "dist/$f" || { echo "Missing dist/$f"; exit 1; }
+          done
+
+      - name: Audit production dependencies (high and critical)
+        run: npm audit --omit=dev --audit-level=high
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the image
+        run: docker build -t dev-tools:ci .
+
+      - name: Start the container with the production settings
+        run: |
+          docker run -d --name dev-tools -p 8080:8080 --read-only --tmpfs /tmp \
+            --cap-drop ALL --security-opt no-new-privileges:true dev-tools:ci
+          for i in $(seq 1 20); do
+            curl -fsS -o /dev/null http://localhost:8080/ && break
+            sleep 1
+          done
+
+      - name: Check the routes and headers
+        run: |
+          curl -fsS http://localhost:8080/json | grep -q '<title>JSON Formatter | Dev Tools</title>'
+          curl -fsSI http://localhost:8080/ | grep -qi '^content-security-policy:'
+          worker=$(docker exec dev-tools sh -c 'ls /usr/share/nginx/html/assets | grep -m1 "\.mjs$"')
+          curl -fsSI "http://localhost:8080/assets/$worker" | grep -qi '^content-type: application/javascript'
+          test "$(docker exec dev-tools id -u)" = "101"
+
+      - name: Show the container log
+        if: always()
+        run: docker logs dev-tools || true

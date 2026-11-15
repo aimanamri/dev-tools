@@ -1,204 +1,269 @@
+<div align="center">
+
+<img src=".github/assets/banner.gif" width="640" alt="The Dev Tools logo, a pixel art terminal window. The text after the prompt changes: format json, merge pdf, make qr codes, build cron, calc subnets, encode base64.">
+
 # Dev Tools
 
-> 19 client-side developer utilities — fast, private, no server required.
+**19 developer tools that run in your browser. No server. No sign-up. No tracking.**
 
-**Live demo → [devtools.aimanuddin.com](https://devtools.aimanuddin.com)**
+[**Open the live site: devtools.aimanuddin.com**](https://devtools.aimanuddin.com)
 
-A single-page application built with React and Vite that bundles a suite of everyday developer tools into one clean interface. Every operation runs entirely in your browser. No data is sent to any server, no accounts, no tracking.
+[![CI](https://github.com/aimanamri/dev-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/aimanamri/dev-tools/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/github/v/tag/aimanamri/dev-tools?sort=semver&label=version)](https://github.com/aimanamri/dev-tools/tags)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
+[![Vite 8](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev)
+[![Tailwind CSS 3](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Vitest](https://img.shields.io/badge/tested_with-Vitest-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev)
+[![PWA: works offline](https://img.shields.io/badge/PWA-works_offline-5A0FC8?logo=pwa&logoColor=white)](#how-it-works)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](#run-with-docker)
 
-The dashboard introduces each tool with an animated scrollytelling flow: a sticky faux-browser window crossfades between live tool previews as you scroll, driven by framer-motion. Theme-aware chrome (white panels in light mode, blue-slate gradient in dark mode) uses a full OKLCH design token system.
-
----
-
-## Features at a glance
-
-- **100% client-side** — files, passwords, and keys never leave your device
-- **Animated dashboard** — scrollytelling hero + sticky per-tool showcase powered by framer-motion; respects `prefers-reduced-motion`
-- **Dark / light mode** — persisted to `localStorage`, respects system preference on first load; dark theme uses a static blue-slate radial gradient workspace
-- **Responsive layout** — collapsible sidebar, works on desktop and tablet
-- **Keyboard-friendly** — inputs trigger actions on Enter, copy buttons give instant feedback
-- **Fast builds** — Vite + Rolldown, code-split per tool, lazy-loaded diagram chunks
+</div>
 
 ---
+
+## Contents
+
+- [What it is](#what-it-is)
+- [Tools](#tools)
+- [How it works](#how-it-works)
+- [Tech stack](#tech-stack)
+- [Project layout](#project-layout)
+- [Quick start](#quick-start)
+- [Build and deploy](#build-and-deploy)
+- [Run with Docker](#run-with-docker)
+- [Versions and releases](#versions-and-releases)
+- [Contribute](#contribute)
+- [Disclaimer and license](#disclaimer-and-license)
+
+## What it is
+
+Dev Tools is a single-page web application. It puts 19 everyday developer tools in one place.
+
+- **Private.** Each tool runs as JavaScript in your browser. The site does not send your text, files or passwords to a server.
+- **No accounts.** You do not sign up. The site has no analytics, no advertisements and no cookies.
+- **Offline.** After the first visit, a service worker keeps a copy of the site. The tools also operate without a network connection.
+- **Static.** The build output is a folder of static files. You can put it on any web host, or run it in a small Docker container.
 
 ## Tools
 
-### Generators & Converters
+| Group | Tool | Path | What it does |
+|---|---|---|---|
+| JSON | JSON Formatter | `/json` | Format, minify and validate JSON. See each error with its position. |
+| JSON | JSON Converters | `/json-convert` | Convert JSON to CSV, YAML, XML, a Python dict or a Markdown table. |
+| JSON | JSON Tree Viewer | `/json-tree` | Examine nested JSON in a tree. Open and close each branch. |
+| JSON | JSON Diff | `/json-diff` | Compare two JSON documents side by side. See each change. |
+| Converters | Base64 Converter | `/base64` | Encode and decode Base64 text and files. |
+| Converters | Python → JSON | `/pydict` | Convert a Python dict to valid JSON. No Python code runs. |
+| Converters | SVG Converter | `/svg` | Clean an SVG. Convert it to JSX, a CSS background or Base64. |
+| Generators | Password Generator | `/password` | Make secure random passwords. See the strength of each password. |
+| Generators | QR Code Generator | `/qr` | Make QR codes for links, contact cards, SMS, email and other data. |
+| Date and time | Timestamp Converter | `/timestamp` | Convert Unix timestamps to dates, and dates to timestamps. |
+| Date and time | Timezone Converter | `/timezone` | Compare one time in many time zones, with daylight saving time. |
+| Network | IP Subnet Calculator | `/subnet` | Calculate IPv4 and IPv6 subnets, masks and host ranges. |
+| Network | IP Address Converter | `/ip-convert` | Convert an IPv4 address to binary, hexadecimal and integer values. |
+| Text and markup | Markdown Preview | `/markdown` | Write Markdown with code highlighting, math and diagrams. Export HTML. |
+| Text and markup | Cron Generator | `/cron` | Build a cron expression. Read what it does in plain English. |
+| PDF | PDF Tool Suite | `/pdf` | View, reorder, merge, split and watermark PDF files. Fill PDF forms. |
+| PDF | PDF Security | `/pdf-security` | Add a password to a PDF, or remove one. |
+| Hugo | Blowfish Config | `/blowfish` | Convert Hugo Blowfish configuration files between YAML and TOML. |
+| Hugo | Hugo Article Generator | `/blowfish-article` | Build the front matter for a Hugo Blowfish article in a form. |
 
-| Tool | Route | Description |
-|---|---|---|
-| **Password Generator** | `/password` | Cryptographically secure passwords via `crypto.getRandomValues()`. Configurable length, character sets, exclusion rules. Live entropy bits, crack-time estimate, and 5-level strength meter. |
-| **Base64 Converter** | `/base64` | Encode and decode Base64 for plain text and binary files. Supports UTF-8, ASCII, Latin-1. Drag-and-drop file encode; Base64 → file download for decode. |
-| **QR Code Generator** | `/qr` | Nine QR types: URL, plain text, email, SMS, phone, vCard, multi-URL, App Store link, PDF link. Customisable colours, size, and error correction. PNG and SVG export. |
+The text for each tool is in [`app/src/site/meta.js`](app/src/site/meta.js). The page titles, the sitemap and `llms.txt` come from this file.
 
-### JSON Tools
+## How it works
 
-| Tool | Route | Description |
-|---|---|---|
-| **JSON Formatter** | `/json` | Format and minify JSON with real-time validation. 2-space, 4-space, or tab indent. Inline error messages with character position. |
-| **JSON Converters** | `/json-convert` | Export JSON to CSV, YAML, XML, Python dict, `JSON.stringify` string, or Markdown table. Live conversion on every keystroke. |
-| **JSON Tree Viewer** | `/json-tree` | Explore deeply nested JSON in a collapsible, colour-coded tree. Depth-based auto-expand, expand/collapse all, copy as formatted JSON. |
-| **JSON Diff** | `/json-diff` | Side-by-side and unified diff of two JSON documents. Key-order normalised before diffing so structural differences are not flagged. Addition/deletion counts and copy-as-patch. |
+```
+Browser
+ ├─ index.html, page HTML files     static files from any web host
+ ├─ React app (one chunk per tool)  loads a tool only when you open it
+ ├─ Your input  ──► tool code ──► result      all in memory, on your device
+ └─ Service worker                  keeps a copy of the site for offline use
+```
 
-### Date & Time
+Security controls:
 
-| Tool | Route | Description |
-|---|---|---|
-| **Timestamp Converter** | `/timestamp` | Convert Unix timestamps (s / ms / µs / ns) to and from human-readable dates. UTC and local timezone modes, 10 output formats, Discord timestamp tags, local timezone card. |
-| **Timezone Converter** | `/timezone` | Compare any moment across a curated list of 27 global timezones plus your local zone. DST-aware Luxon backend, add/remove zones, live clock display. |
+- A strict Content Security Policy. All scripts, styles and fonts come from the same origin. `eval` is not permitted.
+- `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy` and `Cross-Origin-Opener-Policy` headers. The same values are in [`app/public/.htaccess`](app/public/.htaccess), [`nginx-security-headers.inc`](nginx-security-headers.inc) and the Vite preview server. `.htaccess` also sets HSTS. For Docker, set HSTS on the proxy that terminates HTTPS.
+- DOMPurify cleans all HTML that the Markdown and SVG tools show.
+- An error boundary stops one broken tool. The other parts of the site continue to operate.
 
-### Network & IP
+## Tech stack
 
-| Tool | Route | Description |
-|---|---|---|
-| **IP Subnet Calculator** | `/subnet` | Dual-stack IPv4 and IPv6 subnet calculator. Network address, broadcast, host range, subnet mask, all-subnets table. Binary representation and IPv6 transition addresses included. |
-| **IP Converter** | `/ip-convert` | Convert IPv4 addresses to 32-bit binary (dotted and plain), hexadecimal, and integer. Reverse binary-to-IP with live bit counter and per-octet breakdown. |
-
-### Text & Markup
-
-| Tool | Route | Description |
-|---|---|---|
-| **Markdown Preview** | `/markdown` | Live Markdown rendering with GitHub Flavored Markdown, `highlight.js` syntax highlighting, KaTeX math (`$inline$` and `$$block$$`), and Mermaid diagrams. Import `.md` files, export `.md` or standalone `.html`. |
-| **Cron Generator** | `/cron` | Build cron expressions field-by-field with chip presets and a raw input that syncs back to the builder. Real-time `cronstrue` description, 15 preset schedules, per-field validation with plain-English error messages. |
-| **Python → JSON** | `/pydict` | Convert Python dict literals to valid JSON. Handles `True / False / None`, single-quoted strings, tuples, trailing commas, triple-quoted strings, and `#` comments. |
-
-### SVG
-
-| Tool | Route | Description |
-|---|---|---|
-| **SVG Converter** | `/svg` | Paste or upload an SVG. Outputs: minified SVG, CSS `background-image` data URI, Base64 data URI, React JSX component. Inline colour editor for interactive palette swaps. Live preview. |
-
-### Hugo / Blowfish
-
-| Tool | Route | Description |
-|---|---|---|
-| **Blowfish Config Transpiler** | `/blowfish` | Bi-directional YAML ↔ TOML converter for Hugo Blowfish theme configuration files. Auto-detects input format, five built-in templates populated from real Blowfish reference files, syntax-highlighted output. |
-| **Blowfish Article Generator** | `/blowfish-article` | GUI front matter builder for Hugo Blowfish articles. Generates ready-to-use `.md` files with YAML front matter. Supports tags, categories, hero styles, sharing links, and multilingual filename suffixes. Live rendered preview. |
-
-### PDF
-
-| Tool | Route | Description |
-|---|---|---|
-| **PDF Tool Suite** | `/pdf` | View, reorder (drag-and-drop), merge, split, watermark, fill form fields, and edit metadata. Powered by PDF.js and pdf-lib. |
-| **PDF Security** | `/pdf-security` | **Encrypt** any PDF with AES-128 password protection (open password, owner password, granular permissions). **Unlock** password-protected or owner-restricted PDFs. Encryption detection badge shown on file load. |
-
----
-
-## Tech Stack
-
-| Layer | Choice |
+| Area | Tools |
 |---|---|
-| Framework | React 19 |
-| Build tool | Vite 8 (Rolldown bundler) |
-| Styling | Tailwind CSS v3 + OKLCH CSS custom properties |
-| Routing | React Router v7 |
-| Animation | framer-motion 12 |
-| Icons | Lucide React (1.5 px stroke) |
-| Fonts | Inter (UI) + JetBrains Mono (code/data) via Google Fonts |
-| PDF rendering | PDF.js (`pdfjs-dist`) |
-| PDF editing | pdf-lib + pdf-lib-plus-encrypt |
-| Markdown | marked + DOMPurify + highlight.js + KaTeX + Mermaid |
-| Drag-and-drop | dnd-kit |
+| UI | [React 19](https://react.dev), [React Router 7](https://reactrouter.com), [Tailwind CSS 3](https://tailwindcss.com), [Framer Motion](https://motion.dev), [Lucide](https://lucide.dev) icons |
+| Build | [Vite 8](https://vite.dev), [vite-plugin-pwa](https://vite-pwa-org.netlify.app), a custom SEO plugin |
+| Fonts | Inter and JetBrains Mono, served from the site with [Fontsource](https://fontsource.org) |
+| PDF | [pdf.js](https://mozilla.github.io/pdf.js/), [pdf-lib](https://pdf-lib.js.org), pdf-lib-plus-encrypt |
+| Markdown | [marked](https://marked.js.org), [highlight.js](https://highlightjs.org), [KaTeX](https://katex.org), [Mermaid](https://mermaid.js.org), [DOMPurify](https://github.com/cure53/DOMPurify) |
+| Data | js-yaml, smol-toml, PapaParse, diff, Luxon, cronstrue, qrcode.react |
+| Tests | [Vitest](https://vitest.dev), ESLint |
+| Art | [Pixelbolt](https://github.com/skulitom/Pixelbolt) pixel art recipes for the logo, icons and banner |
+| Serve | nginx (unprivileged image) in Docker, or Apache with `.htaccess` |
 
----
-
-## Docker
-
-### Run with Docker
-
-```bash
-# Build the image
-docker build -t dev-tools .
-
-# Run on port 8080
-docker run -p 8080:80 dev-tools
-```
-
-Open [http://localhost:8080](http://localhost:8080).
-
-### Docker Compose
-
-```yaml
-services:
-  dev-tools:
-    build: .
-    ports:
-      - "8080:80"
-    restart: unless-stopped
-```
-
-```bash
-docker compose up -d
-```
-
-The image uses a multi-stage build (Node 20 Alpine to compile, nginx Alpine to serve). Final image size is typically under 50 MB.
-
----
-
-## Getting Started
-
-**Prerequisites:** Node.js 18+
-
-```bash
-# Install dependencies
-cd app
-npm install
-
-# Start dev server
-npm run dev
-```
-
-Open [http://localhost:5173](http://localhost:5173).
-
-### Build for production
-
-```bash
-cd app
-npm run build
-```
-
-Static output is written to `app/dist/`. Deploy to any static host — Netlify, Vercel, Cloudflare Pages, GitHub Pages, or a plain web server.
-
-### `.htaccess` included
-
-`app/public/.htaccess` is bundled into the build. It configures:
-- SPA fallback (`FallbackResource /index.html`) for client-side routing
-- Security headers (CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy)
-- Gzip compression for JS, CSS, fonts, and SVG
-
----
-
-## Project Structure
+## Project layout
 
 ```
 dev-tools/
-├── app/
-│   ├── public/
-│   │   ├── .htaccess          # Apache SPA + security headers
-│   │   ├── favicon.svg
-│   │   └── icons.svg
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── shell/         # AppShell, Sidebar, Toolbar
-│   │   │   └── ui/            # Button, Input, Card
-│   │   ├── hooks/
-│   │   │   └── useTheme.js    # Dark/light mode toggle + localStorage
-│   │   ├── styles/
-│   │   │   └── tokens.css     # OKLCH design tokens (light + dark)
-│   │   ├── tools/             # One file per tool
-│   │   ├── App.jsx            # Route definitions
-│   │   └── main.jsx
-│   ├── package.json
-│   ├── tailwind.config.js
-│   └── vite.config.js
-└── README.md
+├─ app/                        The web app (frontend). There is no backend.
+│  ├─ index.html               HTML template. The build sets the meta tags for each page.
+│  ├─ package.json             App dependencies and the version number of the site
+│  ├─ vite.config.js           Build, PWA, security headers for preview, version injection
+│  ├─ build/seo-plugin.js      Writes page HTML files, sitemap.xml, robots.txt and llms.txt
+│  ├─ public/                  Static files: icons, og-image.png, .htaccess, theme-init.js
+│  └─ src/
+│     ├─ main.jsx, App.jsx     Start point and routes
+│     ├─ site/meta.js          Site name, page titles and tool descriptions (one source)
+│     ├─ tools/                One component for each tool, and registry.js (icons)
+│     ├─ pages/                Other pages (Disclaimer)
+│     ├─ lib/                  Pure logic with unit tests (JSON, Base64, subnet, cron, ...)
+│     ├─ components/           Shell (sidebar, toolbar, footer), UI parts, error boundary
+│     ├─ hooks/, styles/       Theme hook and design tokens
+├─ branding/                   Pixelbolt recipes and the script that renders the icons
+├─ scripts/
+│  ├─ release.mjs              SemVer bump from commit messages, CHANGELOG.md
+│  └─ zip-dist.mjs             Packs app/dist into release/devtools-v<version>.zip
+├─ .github/assets/             README banner and logo GIFs
+├─ .github/workflows/ci.yml    CI: lint, tests, build and a Docker test for each pull request
+├─ Dockerfile, compose.yaml    Production container (nginx, non-root)
+├─ nginx.conf                  nginx site configuration for the container
+├─ nginx-security-headers.inc  Security headers that nginx.conf includes
+└─ package.json                Root scripts that call the app scripts
 ```
 
----
+## Quick start
 
-## Privacy
+You need [Node.js](https://nodejs.org) 20 or newer and npm.
 
-- No network requests are made during tool usage
-- No analytics or telemetry
-- No cookies
-- Files and passwords are held in component state and released when you navigate away or click **Clear & Reset**
+1. Get the code:
+
+   ```bash
+   git clone https://github.com/aimanamri/dev-tools.git
+   cd dev-tools
+   ```
+
+2. Install the dependencies:
+
+   ```bash
+   npm run setup
+   ```
+
+3. Start the development server. It reloads the page when you change a file:
+
+   ```bash
+   npm run dev
+   ```
+
+   Open http://localhost:5173.
+
+4. Before you send a change, run the linter, the tests and a build:
+
+   ```bash
+   npm run check
+   ```
+
+### Run in production mode on your computer
+
+```bash
+npm run build
+npm run preview
+```
+
+Open http://localhost:4173. The preview server sends the same security headers as production.
+
+Note: the Vite preview server sends the home page HTML for `/json`. Production servers (Apache and nginx) send `json/index.html`, which has the correct meta tags. Use Docker to test the production routing.
+
+## Build and deploy
+
+### Static host (ZIP file)
+
+```bash
+npm run build:zip
+```
+
+This command builds the site and writes `release/devtools-v<version>.zip`. To deploy:
+
+1. Open the file manager or the FTP client of your web host.
+2. Upload the contents of the ZIP file to the web root (for example `public_html/`).
+3. Make sure that `.htaccess` is in the web root. Some file managers hide files that start with a dot.
+
+On Apache and LiteSpeed hosts, `.htaccess` sets HTTPS, the page routes and the security headers. On nginx hosts, copy the rules from [`nginx.conf`](nginx.conf) and [`nginx-security-headers.inc`](nginx-security-headers.inc).
+
+The ZIP file and the `release/` folder are in `.gitignore`.
+
+### Other commands
+
+| Command | What it does |
+|---|---|
+| `npm run setup` | Installs the app dependencies (`npm ci` in `app/`) |
+| `npm run dev` | Starts the development server |
+| `npm run build` | Builds the site into `app/dist/` |
+| `npm run build:zip` | Builds the site and packs it into a ZIP file |
+| `npm run preview` | Serves `app/dist/` on port 4173 |
+| `npm test` | Runs the unit tests |
+| `npm run lint` | Runs ESLint |
+| `npm run check` | Runs lint, tests and build |
+| `npm run release` | Sets the next version from the commit messages |
+| `npm run branding` | Renders the logo, icons and banner again (needs Pixelbolt) |
+
+## Run with Docker
+
+The image builds the site in a Node.js stage. Then it serves the files with nginx as a non-root user on port 8080.
+
+```bash
+docker compose up -d --build
+```
+
+Open http://localhost:8080. To stop the container:
+
+```bash
+docker compose down
+```
+
+Without Compose:
+
+```bash
+docker build -t dev-tools .
+docker run --rm -p 8080:8080 --read-only --tmpfs /tmp dev-tools
+```
+
+The container has a health check, a read-only file system and no Linux capabilities.
+
+## Versions and releases
+
+The project uses [Semantic Versioning](https://semver.org) and [Conventional Commits](https://www.conventionalcommits.org).
+
+| Commit type | Example | Version change |
+|---|---|---|
+| `feat:` | `feat: add a UUID generator` | minor (1.2.0 → 1.3.0) |
+| `fix:`, `sec:`, `perf:` | `fix: accept URL-safe Base64` | patch (1.2.0 → 1.2.1) |
+| `feat!:` or `BREAKING CHANGE:` | `feat!: remove the old API` | major (1.2.0 → 2.0.0) |
+| `docs:`, `chore:`, `build:`, `test:` | `docs: correct the README` | none |
+
+To make a release:
+
+```bash
+npm run release -- --dry-run
+npm run release -- --commit
+git push --follow-tags
+```
+
+The release script writes the same version to `package.json`, `app/package.json`, `app/package-lock.json` and `compose.yaml`, and adds an entry to [`CHANGELOG.md`](CHANGELOG.md). The site footer reads the version from `app/package.json` at build time. Thus all version numbers stay the same.
+
+## Contribute
+
+1. Make a branch from `main`.
+2. Write the change. Put pure logic in `app/src/lib/` and add tests in `app/src/lib/__tests__/`.
+3. To add a tool: add its text to `app/src/site/meta.js`, its icon to `app/src/tools/registry.js` and its route to `app/src/App.jsx`.
+4. Write UI text in [ASD-STE100 Simplified Technical English](https://www.asd-ste100.org): short sentences, active voice, no em dashes.
+5. Run `npm run check`. Use a Conventional Commit message.
+6. Open a pull request.
+
+To report a defect, open an [issue](https://github.com/aimanamri/dev-tools/issues). Do not put private data in an issue.
+
+## Disclaimer and license
+
+The site is supplied "as is", without a warranty. Examine all output before you use it in production. Read the full [disclaimer](https://devtools.aimanuddin.com/disclaimer).
+
+Released under the [MIT License](LICENSE).

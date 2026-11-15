@@ -1,4 +1,6 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useMemo, useCallback } from 'react'
+import { parseJson } from '../lib/json'
 import { ChevronRight, ChevronDown, AlertCircle, Copy, Check, Minus, Plus } from 'lucide-react'
 
 // ── Styles ────────────────────────────────────────────────────────────────────
@@ -214,11 +216,8 @@ export default function JSONTreeViewer() {
 
   const { parsed, error } = useMemo(() => {
     if (!source.trim()) return { parsed: undefined, error: null }
-    try {
-      return { parsed: JSON.parse(source), error: null }
-    } catch (e) {
-      return { parsed: undefined, error: e.message }
-    }
+    const res = parseJson(source)
+    return res.ok ? { parsed: res.value, error: null } : { parsed: undefined, error: res.error }
   }, [source])
 
   // Auto-expand 2 levels on first valid parse
@@ -253,7 +252,7 @@ export default function JSONTreeViewer() {
 
   const handleCopy = async () => {
     if (!source.trim() || error) return
-    await navigator.clipboard.writeText(JSON.stringify(parsed, null, 2))
+    await copyText(JSON.stringify(parsed, null, 2))
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -267,7 +266,7 @@ export default function JSONTreeViewer() {
           JSON Tree Viewer
         </h1>
         <p style={{ fontSize: '0.875rem', color: 'var(--color-ink-muted)', margin: '0.25rem 0 0', fontFamily: 'var(--font-sans)' }}>
-          Paste JSON to explore its structure interactively.
+          Paste JSON to examine its structure in a tree.
         </p>
       </div>
 
@@ -292,7 +291,7 @@ export default function JSONTreeViewer() {
             </button>
             <button className="jtv-btn-sm" data-ok={String(copied)} onClick={handleCopy} disabled={!parsed || !!error}>
               {copied ? <Check size={11} /> : <Copy size={11} />}
-              {copied ? 'Copied!' : 'Copy'}
+              {copied ? 'Copied' : 'Copy'}
             </button>
           </div>
         </div>

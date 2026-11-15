@@ -5,7 +5,7 @@ import { Globe, Plus, X, Clock, Sun } from 'lucide-react'
 const LOCAL_IANA = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 const ZONES = [
-  { id: 'UTC', label: 'UTC — Coordinated Universal Time', abbr: 'UTC', region: 'Universal' },
+  { id: 'UTC', label: 'UTC (Coordinated Universal Time)', abbr: 'UTC', region: 'Universal' },
   { id: 'Pacific/Honolulu', label: 'Hawaii–Aleutian Time (HST)', abbr: 'HST', region: 'Americas' },
   { id: 'America/Anchorage', label: 'Alaska Time (AKST/AKDT)', abbr: 'AKT', region: 'Americas' },
   { id: 'America/Los_Angeles', label: 'Pacific Time (PT)', abbr: 'PT', region: 'Americas' },
@@ -37,7 +37,7 @@ const ZONES = [
 // Add local zone if not already in curated list
 const ALL_ZONES = ZONES.find(z => z.id === LOCAL_IANA)
   ? ZONES
-  : [{ id: LOCAL_IANA, label: `Local — ${LOCAL_IANA}`, abbr: 'Local', region: 'Local' }, ...ZONES]
+  : [{ id: LOCAL_IANA, label: `Local (${LOCAL_IANA})`, abbr: 'Local', region: 'Local' }, ...ZONES]
 
 function formatOffsetStr(mins) {
   const sign = mins >= 0 ? '+' : '-'
@@ -254,7 +254,7 @@ function EducationalPanel() {
         </p>
         <p style={calloutStyle('oklch(0.560 0.175 65 / 0.08)')}>
           <strong style={{ color: 'var(--color-warning)', fontFamily: 'var(--font-mono)' }}>No DST:</strong>{' '}
-          Japan, China, India, Singapore, Malaysia, and most of Africa do not observe DST — their UTC offset is constant year-round.
+          Japan, China, India, Singapore, Malaysia and most of Africa do not use DST. Their UTC offset is the same all year.
         </p>
       </div>
 
@@ -265,13 +265,13 @@ function EducationalPanel() {
           <h3 style={h3Style}>Why UTC / GMT?</h3>
         </div>
         <p style={paraStyle}>
-          <strong style={{ color: 'var(--color-ink)' }}>GMT</strong> (Greenwich Mean Time) is the mean solar time at the Royal Observatory in Greenwich, London. It was the world's primary time standard throughout the 20th century.
+          <strong style={{ color: 'var(--color-ink)' }}>GMT</strong> (Greenwich Mean Time) is the mean solar time at the Royal Observatory in Greenwich, London. It was the primary time standard of the world in the 20th century.
         </p>
         <p style={paraStyle}>
-          <strong style={{ color: 'var(--color-ink)' }}>UTC</strong> (Coordinated Universal Time) is the modern successor. Rather than tracking the sun, it's maintained by a weighted average of atomic clocks worldwide. It never observes DST and does not drift.
+          <strong style={{ color: 'var(--color-ink)' }}>UTC</strong> (Coordinated Universal Time) replaced GMT. It does not follow the sun. A weighted average of atomic clocks around the world keeps it accurate. UTC has no DST and does not drift.
         </p>
         <p style={paraStyle}>
-          All other timezones are expressed as UTC offsets (e.g., MYT = UTC+8, ET = UTC−5). Servers and APIs store timestamps in UTC to avoid ambiguity across regions and DST transitions.
+          All other time zones are offsets from UTC. Examples: MYT = UTC+8, ET = UTC−5. Servers and APIs store timestamps in UTC. This prevents confusion between regions and at DST changes.
         </p>
         <p style={calloutStyle('var(--color-accent-subtle)')}>
           <strong style={{ color: 'var(--color-accent)', fontFamily: 'var(--font-mono)' }}>Best practice:</strong>{' '}

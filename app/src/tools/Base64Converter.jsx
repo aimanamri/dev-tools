@@ -1,73 +1,26 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useRef } from 'react'
 import {
   Upload, FileText, X, ShieldCheck,
   AlertCircle, ArrowRight,
 } from 'lucide-react'
 import Button from '../components/ui/Button'
 import CopyButton from '../components/ui/CopyButton'
+import { processText, base64ToBytes } from '../lib/base64'
 
 // ── Encoding helpers ──────────────────────────────────────────────────────────
-function encodeText(str, charset) {
-  try {
-    if (charset === 'latin1') {
-      // Latin-1: only chars 0–255
-      return btoa(str)
-    }
-    // UTF-8 (default) + ASCII subset
-    const bytes = new TextEncoder().encode(str)
-    const binary = Array.from(bytes, b => String.fromCharCode(b)).join('')
-    return btoa(binary)
-  } catch (e) {
-    throw new Error(`Encoding failed: ${e.message}`)
-  }
-}
-
-function decodeText(b64, charset) {
-  try {
-    const binary = atob(b64.replace(/\s/g, ''))
-    if (charset === 'latin1') return binary
-    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0))
-    return new TextDecoder(charset === 'ascii' ? 'ascii' : 'utf-8').decode(bytes)
-  } catch (e) {
-    throw new Error(`Invalid Base64: ${e.message}`)
-  }
-}
-
-function processText(input, mode, charset, eachLine) {
-  if (!input) return { output: '', error: null }
-  try {
-    if (eachLine) {
-      const lines = input.split('\n')
-      const processed = lines.map(line => {
-        if (!line) return ''
-        return mode === 'encode' ? encodeText(line, charset) : decodeText(line, charset)
-      })
-      return { output: processed.join('\n'), error: null }
-    }
-    const output = mode === 'encode'
-      ? encodeText(input, charset)
-      : decodeText(input, charset)
-    return { output, error: null }
-  } catch (e) {
-    return { output: '', error: e.message }
-  }
-}
-
 // File → Base64
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload  = e => resolve(e.target.result.split(',')[1]) // strip data-URL prefix
-    reader.onerror = () => reject(new Error('File read failed'))
+    reader.onerror = () => reject(new Error('The browser could not read the file.'))
     reader.readAsDataURL(file)
   })
 }
 
 // Base64 → download file
 function downloadFile(b64, filename) {
-  const binary = atob(b64.replace(/\s/g, ''))
-  const bytes  = new Uint8Array(binary.length)
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  const bytes  = base64ToBytes(b64)
   const blob = new Blob([bytes])
   const url  = URL.createObjectURL(blob)
   const a    = document.createElement('a')
@@ -265,7 +218,7 @@ function TextTab({ mode }) {
           <textarea
             value={output}
             readOnly
-            placeholder="Output appears here in real time."
+            placeholder="The output shows here as you type."
             spellCheck={false}
             style={{
               ...taStyle,
@@ -304,7 +257,7 @@ function FileTab({ mode }) {
   function handleFile(f) {
     if (!f) return
     if (f.size > MAX_FILE_BYTES) {
-      setError(`File too large: ${fmtSize(f.size)}. Maximum is 10 MB.`)
+      setError(`The file is too large (${fmtSize(f.size)}). The maximum is 10 MB.`)
       return
     }
     setFile(f)
@@ -332,7 +285,7 @@ function FileTab({ mode }) {
     try {
       downloadFile(b64Input.trim(), 'decoded-file')
     } catch (e) {
-      setError(`Invalid Base64: ${e.message}`)
+      setError(e.message)
     }
   }
 
@@ -374,9 +327,9 @@ function FileTab({ mode }) {
       >
         <ShieldCheck size={14} strokeWidth={1.5} className="flex-shrink-0 mt-0.5" />
         <span>
-          Files are processed entirely in your browser using the{' '}
+          Your browser processes each file with the{' '}
           <span className="font-mono">FileReader</span> API.
-          Nothing is uploaded to any server. The file is released from memory as soon as processing completes.
+          The site does not upload your file. The browser removes the file from memory when the work is complete.
         </span>
       </div>
 
@@ -415,10 +368,10 @@ function FileTab({ mode }) {
             ) : (
               <div className="text-center">
                 <p className="text-sm font-sans" style={{ color: 'var(--color-ink-muted)' }}>
-                  Drop a file here or click to browse
+                  Drop a file here, or select this area to find a file.
                 </p>
                 <p className="text-xs font-sans mt-0.5" style={{ color: 'var(--color-ink-faint)' }}>
-                  Any file type · up to 10 MB
+                  All file types. Maximum 10 MB.
                 </p>
               </div>
             )}
@@ -468,7 +421,7 @@ function FileTab({ mode }) {
             <textarea
               value={b64Input}
               onChange={e => { setB64Input(e.target.value); setError(null) }}
-              placeholder="Paste Base64 encoded file content here…"
+              placeholder="Paste the Base64 content of a file here."
               spellCheck={false}
               style={{
                 ...taStyle,

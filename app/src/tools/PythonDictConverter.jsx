@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef } from 'react'
+import { pythonToJson } from '../lib/pythonLiteral'
 import {
   ShieldCheck, AlertCircle, CheckCircle2,
   Trash2, ClipboardPaste,
@@ -9,7 +10,7 @@ import Button from '../components/ui/Button'
 import CopyButton from '../components/ui/CopyButton'
 
 const STYLES = `
-/* shared base — each element provides its own background */
+/* shared base: each element provides its own background */
 .pdc-pre { margin: 0; tab-size: 4; }
 .pdc-pre code.hljs { background: transparent; color: var(--color-ink); padding: 0; }
 
@@ -27,7 +28,7 @@ const STYLES = `
 .pdc-pre .hljs-variable      { color: #e36209; }
 .pdc-pre .hljs-meta          { color: #6a737d; }
 
-/* dark-mode token colours — html.dark class (app toggle, not OS preference) */
+/* dark-mode token colours: html.dark class (app toggle, not OS preference) */
 html.dark .pdc-pre .hljs-keyword,
 html.dark .pdc-pre .hljs-selector-tag { color: #c792ea; }
 html.dark .pdc-pre .hljs-string,
@@ -57,112 +58,6 @@ html.dark .pdc-pre .hljs-meta         { color: #89ddff; }
   resize: none;
 }
 `
-
-// ── Parser ────────────────────────────────────────────────────────────────────
-// Walks char-by-char to handle strings separately from code, so keyword
-// replacements never fire inside string values.
-function parsePythonDict(src) {
-  let out = ''
-  let i = 0
-  const n = src.length
-
-  while (i < n) {
-    const ch = src[i]
-
-    // Triple-quoted strings: '''...''' or """..."""
-    const tripleQ =
-      (ch === "'" && src.slice(i, i + 3) === "'''") ||
-      (ch === '"' && src.slice(i, i + 3) === '"""')
-      ? src.slice(i, i + 3) : null
-
-    if (tripleQ) {
-      out += '"'
-      i += 3
-      while (i < n && src.slice(i, i + 3) !== tripleQ) {
-        if (src[i] === '\\' && i + 1 < n) {
-          out += src[i]; out += src[i + 1]; i += 2
-        } else if (src[i] === '"') {
-          out += '\\"'; i++
-        } else if (src[i] === '\n') {
-          out += '\\n'; i++
-        } else if (src[i] === '\r') {
-          i++
-        } else {
-          out += src[i++]
-        }
-      }
-      out += '"'
-      i += 3
-      continue
-    }
-
-    // Single-quoted string: '...'
-    if (ch === "'") {
-      out += '"'
-      i++
-      while (i < n && src[i] !== "'") {
-        if (src[i] === '\\' && i + 1 < n) {
-          const nx = src[i + 1]
-          if (nx === "'") { out += "'"; i += 2 }             // \' → ' (no escape needed in JSON)
-          else if (nx === '"') { out += '\\"'; i += 2 }      // \" → keep escaped
-          else { out += src[i]; out += src[i + 1]; i += 2 }
-        } else if (src[i] === '"') {
-          out += '\\"'; i++    // bare " inside single-quoted → escape it
-        } else if (src[i] === '\n') {
-          out += '\\n'; i++
-        } else {
-          out += src[i++]
-        }
-      }
-      out += '"'
-      i++ // closing '
-      continue
-    }
-
-    // Double-quoted string: "..."
-    if (ch === '"') {
-      out += '"'
-      i++
-      while (i < n && src[i] !== '"') {
-        if (src[i] === '\\' && i + 1 < n) {
-          out += src[i]; out += src[i + 1]; i += 2
-        } else {
-          out += src[i++]
-        }
-      }
-      out += '"'
-      i++ // closing "
-      continue
-    }
-
-    // Python comment: strip to end of line
-    if (ch === '#') {
-      while (i < n && src[i] !== '\n') i++
-      continue
-    }
-
-    // All other characters — collect a run, then apply substitutions
-    const start = i
-    while (i < n && src[i] !== "'" && src[i] !== '"' && src[i] !== '#') i++
-    let chunk = src.slice(start, i)
-
-    // Boolean / None literals at word boundaries
-    chunk = chunk.replace(/\bTrue\b/g, 'true')
-    chunk = chunk.replace(/\bFalse\b/g, 'false')
-    chunk = chunk.replace(/\bNone\b/g, 'null')
-
-    // Tuples → JSON arrays (safe in a pure dict literal context)
-    chunk = chunk.replace(/\(/g, '[').replace(/\)/g, ']')
-
-    // Remove trailing commas before } or ]
-    chunk = chunk.replace(/,(\s*[}\]])/g, '$1')
-
-    out += chunk
-  }
-
-  const parsed = JSON.parse(out)
-  return JSON.stringify(parsed, null, 2)
-}
 
 // ── Panel header ──────────────────────────────────────────────────────────────
 function PanelHeader({ label, badge, actions }) {
@@ -210,7 +105,7 @@ const SAMPLE = `{
     'active': True,
     'score': None,
     'tags': ['python', 'dev'],
-    'coords': (48.8566, 2.3522),  # tuple → array
+    'coords': (48.8566, 2.3522),  # a tuple becomes an array
     'meta': {
         'version': 2,
         'debug': False
@@ -236,7 +131,7 @@ function hljsJson(code) {
 
 const EDU_BLOCKS = [
   {
-    title: 'json.dumps() — dict to JSON string',
+    title: 'json.dumps(): dict to JSON string',
     code: `import json
 
 data = {
@@ -254,7 +149,7 @@ print(json_str)
 # }`,
   },
   {
-    title: 'json.dump() / json.load() — file I/O',
+    title: 'json.dump() and json.load(): file I/O',
     code: `import json
 
 # Write dict to a file
@@ -269,7 +164,7 @@ with open('data.json', 'r') as f:
 parsed = json.loads('{"key": "value"}')`,
   },
   {
-    title: 'Custom serializer — non-standard types',
+    title: 'Custom serializer: types that JSON does not have',
     code: `import json
 
 data = {
@@ -285,7 +180,7 @@ def default(obj):
 json.dumps(data, default=default, indent=2)`,
   },
   {
-    title: 'sort_keys & separators — compact output',
+    title: 'sort_keys and separators: compact output',
     code: `import json
 
 data = {"z": 1, "a": 2, "m": 3}
@@ -320,9 +215,9 @@ function EducationalPanel() {
           Python's json module
         </h2>
         <p className="text-sm font-sans" style={{ color: 'var(--color-ink-muted)', lineHeight: 1.6 }}>
-          Built into the standard library — no pip install needed. The{' '}
+          This module is in the standard library. No installation is necessary. The{' '}
           <code style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8125rem', color: 'var(--color-primary)' }}>json</code>{' '}
-          module converts Python dicts to JSON-compliant strings and handles all type coercions.
+          module converts a Python dict to a JSON string and converts each type.
         </p>
       </div>
 
@@ -419,7 +314,7 @@ export default function PythonDictConverter() {
   const { output, error } = useMemo(() => {
     if (!input.trim()) return { output: '', error: null }
     try {
-      return { output: parsePythonDict(input), error: null }
+      return { output: pythonToJson(input), error: null }
     } catch (e) {
       return { output: '', error: e.message }
     }
@@ -450,7 +345,7 @@ export default function PythonDictConverter() {
         }}
       >
         <ShieldCheck size={13} strokeWidth={1.5} style={{ flexShrink: 0 }} />
-        All conversions run 100% in-browser — your data never leaves this page.
+        All conversions occur in your browser. Your data stays on this page.
       </div>
 
       {/* Split editors */}
@@ -550,7 +445,7 @@ export default function PythonDictConverter() {
             dangerouslySetInnerHTML={{
               __html: output
                 ? `<code class="hljs">${hljsJson(output)}</code>`
-                : `<span style="color:var(--color-ink-faint)">JSON output will appear here…</span>`
+                : `<span style="color:var(--color-ink-faint)">The JSON output shows here.</span>`
             }}
           />
         </div>

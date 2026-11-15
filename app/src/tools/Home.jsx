@@ -242,12 +242,12 @@ function TreePreview() {
   )
   return (
     <div>
-      <Row pad={0} label="response" />
-      <Row pad={18} label="status" val="200" c={COLORS.primary} />
-      <Row pad={18} label="items" />
-      <Row pad={36} label="0" val={'"alpha"'} c={COLORS.success} />
-      <Row pad={36} label="1" val={'"beta"'} c={COLORS.success} />
-      <Row pad={18} label="ok" val="true" c={COLORS.primary} />
+      {Row({ pad: 0, label: 'response' })}
+      {Row({ pad: 18, label: 'status', val: '200', c: COLORS.primary })}
+      {Row({ pad: 18, label: 'items' })}
+      {Row({ pad: 36, label: '0', val: '"alpha"', c: COLORS.success })}
+      {Row({ pad: 36, label: '1', val: '"beta"', c: COLORS.success })}
+      {Row({ pad: 18, label: 'ok', val: 'true', c: COLORS.primary })}
     </div>
   )
 }
@@ -590,6 +590,15 @@ function Hero({ container, onExplore }) {
             opacity: 0.35,
           }}
         />
+        <motion.img
+          src="/logo.svg"
+          alt=""
+          width={64}
+          height={64}
+          variants={fade} initial="hidden" animate="show"
+          className="pixel-art relative mb-6"
+          style={{ display: 'block' }}
+        />
         <motion.h1
           variants={containerV}
           initial="hidden"
@@ -614,7 +623,7 @@ function Hero({ container, onExplore }) {
           className="relative mt-5 max-w-xl font-sans text-ink-muted"
           style={{ fontSize: '1.125rem', lineHeight: 1.6 }}
         >
-          A client-side toolbox for everyday developer work. Scroll to meet each one, or jump straight in.
+          Developer tools that operate in your browser. Scroll to see each tool, or go directly to one.
         </motion.p>
 
         <motion.div
@@ -623,7 +632,7 @@ function Hero({ container, onExplore }) {
           style={{ borderColor: 'var(--color-border-strong)', backgroundColor: 'var(--color-surface-wash)' }}
         >
           <ShieldCheck size={14} strokeWidth={1.75} style={{ color: 'var(--color-success)' }} />
-          <span className="font-mono text-2xs font-medium text-ink-muted">100% client-side · nothing leaves this tab</span>
+          <span className="font-mono text-2xs font-medium text-ink-muted">All work occurs in your browser. Your data stays in this tab.</span>
         </motion.div>
 
         <motion.button
@@ -632,7 +641,7 @@ function Hero({ container, onExplore }) {
           className="relative mt-10 inline-flex items-center gap-2 self-start font-mono text-xs"
           style={{ color: 'var(--color-ink-faint)', background: 'none', border: 'none', cursor: 'pointer' }}
         >
-          Scroll to explore
+          Scroll to see the tools
           <motion.span
             animate={reduce ? undefined : { y: [0, 4, 0] }}
             transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
@@ -656,7 +665,7 @@ function FinaleGrid() {
       <h2 className="font-sans text-lg font-semibold text-ink" style={{ letterSpacing: '-0.02em' }}>
         All tools
       </h2>
-      <p className="mb-6 mt-1 font-sans text-sm text-ink-muted">Jump straight to any of the nineteen.</p>
+      <p className="mb-6 mt-1 font-sans text-sm text-ink-muted">Select one of the {TOOLS.length} tools.</p>
       <motion.div
         initial="hidden"
         whileInView="show"

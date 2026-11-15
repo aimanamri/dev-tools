@@ -4,6 +4,7 @@ import { AlertCircle, Zap, RotateCcw } from 'lucide-react'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import CopyButton from '../components/ui/CopyButton'
+import { validateFields } from '../lib/cron'
 
 // ── Cron explanation ──────────────────────────────────────────────────────────
 function explain(expr) {
@@ -14,84 +15,13 @@ function explain(expr) {
   }
 }
 
-// ── Per-field validation ──────────────────────────────────────────────────────
-const FIELD_META = {
-  minute: { label: 'Minute',        min: 0, max: 59 },
-  hour:   { label: 'Hour',          min: 0, max: 23 },
-  dom:    { label: 'Day of Month',  min: 1, max: 31 },
-  month:  { label: 'Month',         min: 1, max: 12 },
-  dow:    { label: 'Day of Week',   min: 0, max: 6  },
-}
-
-function validateRange(from, to, min, max) {
-  if (isNaN(from)) return `"${from}" is not a valid number`
-  if (isNaN(to))   return `"${to}" is not a valid number`
-  if (from < min || from > max) return `${from} is out of range — must be ${min}–${max}`
-  if (to   < min || to   > max) return `${to} is out of range — must be ${min}–${max}`
-  if (from > to) return `Start value (${from}) must not exceed end value (${to})`
-  return null
-}
-
-function validateToken(token, min, max) {
-  // step: */n  or  n-m/n
-  if (token.includes('/')) {
-    const [rangePart, stepStr, ...extra] = token.split('/')
-    if (extra.length) return `Too many "/" in "${token}"`
-    const step = Number(stepStr)
-    if (!Number.isInteger(step) || step < 1)
-      return `Step "${stepStr}" must be a positive whole number`
-    if (rangePart !== '*') {
-      const [a, b, ...rest] = rangePart.split('-')
-      if (rest.length) return `Invalid range in "${token}"`
-      const err = validateRange(Number(a), Number(b), min, max)
-      if (err) return err
-    }
-    return null
-  }
-  // range: n-m
-  if (token.includes('-')) {
-    const [a, b, ...rest] = token.split('-')
-    if (rest.length) return `Too many "-" in "${token}" — use n-m format`
-    return validateRange(Number(a), Number(b), min, max)
-  }
-  // single value
-  const num = Number(token)
-  if (!Number.isInteger(num) || String(num) !== token)
-    return `"${token}" is not a valid whole number`
-  if (num < min || num > max)
-    return `${num} is out of range — enter a value between ${min} and ${max}`
-  return null
-}
-
-function validateField(value, key) {
-  const { min, max } = FIELD_META[key]
-  if (!value || value === '*') return null
-  const tokens = value.split(',')
-  for (const raw of tokens) {
-    const t = raw.trim()
-    if (!t) return 'Empty value in list — check your commas'
-    const err = validateToken(t, min, max)
-    if (err) return err
-  }
-  return null
-}
-
-function validateFields(fields) {
-  const errors = {}
-  for (const key of Object.keys(FIELD_META)) {
-    const err = validateField(fields[key], key)
-    if (err) errors[key] = err
-  }
-  return errors
-}
-
 // ── Field definitions ─────────────────────────────────────────────────────────
 const FIELDS = [
   {
     key: 'minute',
     label: 'Minute',
     range: '0–59',
-    guidance: 'Use a number (0–59), a range like 5-30, a step like */5, or a list like 0,15,30',
+    guidance: 'Use a number (0 to 59), a range such as 5-30, a step such as */5, or a list such as 0,15,30',
     chips: [
       { label: '*',     value: '*',    hint: 'every' },
       { label: '*/5',   value: '*/5',  hint: 'every 5' },
@@ -105,7 +35,7 @@ const FIELDS = [
     key: 'hour',
     label: 'Hour',
     range: '0–23',
-    guidance: 'Use a number (0–23), a range like 9-17, a step like */6, or a list like 0,12',
+    guidance: 'Use a number (0 to 23), a range such as 9-17, a step such as */6, or a list such as 0,12',
     chips: [
       { label: '*',     value: '*',     hint: 'every hour' },
       { label: '*/2',   value: '*/2',   hint: 'every 2h' },
@@ -120,7 +50,7 @@ const FIELDS = [
     key: 'dom',
     label: 'Day of Month',
     range: '1–31',
-    guidance: 'Use a number (1–31), a range like 1-15, a step like */2, or a list like 1,15',
+    guidance: 'Use a number (1 to 31), a range such as 1-15, a step such as */2, or a list such as 1,15',
     chips: [
       { label: '*',   value: '*',  hint: 'every day' },
       { label: '1',   value: '1',  hint: '1st' },
@@ -132,7 +62,7 @@ const FIELDS = [
     key: 'month',
     label: 'Month',
     range: '1–12',
-    guidance: 'Use a number (1–12), a range like 3-9, a step like */3, or a list like 1,6,12',
+    guidance: 'Use a number (1 to 12), a range such as 3-9, a step such as */3, or a list such as 1,6,12',
     chips: [
       { label: '*',   value: '*',    hint: 'every' },
       { label: '1',   value: '1',    hint: 'Jan' },
@@ -147,7 +77,7 @@ const FIELDS = [
     key: 'dow',
     label: 'Day of Week',
     range: '0–6 (Sun=0)',
-    guidance: 'Use a number (0=Sun, 1=Mon … 6=Sat), a range like 1-5, or a list like 0,6',
+    guidance: 'Use a number (0 or 7 = Sunday, 1 = Monday, to 6 = Saturday), a name such as MON, a range such as 1-5, or a list such as 0,6',
     chips: [
       { label: '*',    value: '*',    hint: 'every day' },
       { label: '1-5',  value: '1-5',  hint: 'weekdays' },
@@ -398,7 +328,7 @@ export default function CronGenerator() {
           {/* Raw input toggle */}
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono" style={{ color: 'var(--color-ink-faint)' }}>
-              or type directly:
+              or type an expression:
             </span>
             <input
               type="text"
@@ -428,7 +358,7 @@ export default function CronGenerator() {
               <div className="flex items-center gap-2">
                 <AlertCircle size={14} strokeWidth={2} style={{ color: 'var(--color-error)', flexShrink: 0 }} />
                 <span className="text-sm font-sans font-medium" style={{ color: 'var(--color-error)' }}>
-                  Fix the following fields before the expression is valid:
+                  Correct these fields. Then the expression is valid:
                 </span>
               </div>
               <ul style={{ margin: '0 0 0 1.5rem', padding: 0, listStyle: 'disc' }}>

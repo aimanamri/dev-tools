@@ -19,6 +19,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
+const MAX_PDF_BYTES = 200 * 1024 * 1024
+
 function fmtBytes(b) {
   if (!b) return '0 B'
   if (b < 1024) return `${b} B`
@@ -284,7 +286,7 @@ export default function PDFToolSuite() {
     setStatus({ type: '', msg: '' })
     try {
       const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes)
-      const doc = await pdfjsLib.getDocument({ data: arr.slice() }).promise
+      const doc = await pdfjsLib.getDocument({ isEvalSupported: false, data: arr.slice() }).promise
       const n = doc.numPages
 
       let fields = []
@@ -331,7 +333,7 @@ export default function PDFToolSuite() {
       setWorkBytes(arr)
       setFileName(name || 'document.pdf')
       setMergeQueue([])
-      setStatus({ type: 'success', msg: `Loaded "${name}" — ${n} page${n !== 1 ? 's' : ''}, ${fmtBytes(arr.length)}` })
+      setStatus({ type: 'success', msg: `Loaded "${name}": ${n} page${n !== 1 ? 's' : ''}, ${fmtBytes(arr.length)}` })
     } catch (err) {
       setStatus({ type: 'error', msg: `Failed to load PDF: ${err.message}` })
     } finally {
@@ -447,7 +449,7 @@ export default function PDFToolSuite() {
           }
         })
       } else {
-        // Phrases span item boundaries — fall back to page-level, no per-word highlight
+        // Phrases span item boundaries: fall back to page-level, no per-word highlight
         const text = tc.items
           .filter(it => typeof it.str === 'string')
           .map(it => it.str)
@@ -482,7 +484,10 @@ export default function PDFToolSuite() {
     setIsDragOver(false)
     const file = e.dataTransfer?.files[0]
     if (!file || file.type !== 'application/pdf') {
-      setStatus({ type: 'error', msg: 'Please drop a PDF file.' }); return
+      setStatus({ type: 'error', msg: 'Drop a PDF file. Other file types are not accepted.' }); return
+    }
+    if (file.size > MAX_PDF_BYTES) {
+      setStatus({ type: 'error', msg: 'The file is larger than the 200 MB limit.' }); return
     }
     loadPdfBytes(new Uint8Array(await file.arrayBuffer()), file.name)
   }, [loadPdfBytes])
@@ -521,7 +526,7 @@ export default function PDFToolSuite() {
       const pages = await newDoc.copyPages(src, kept.map(p => p.origIdx))
       pages.forEach(p => newDoc.addPage(p))
       const saved = new Uint8Array(await newDoc.save())
-      const newPdfJs = await pdfjsLib.getDocument({ data: saved.slice() }).promise
+      const newPdfJs = await pdfjsLib.getDocument({ isEvalSupported: false, data: saved.slice() }).promise
       const n = newPdfJs.numPages
       setWorkBytes(saved)
       setPdfJs(newPdfJs)
@@ -529,7 +534,7 @@ export default function PDFToolSuite() {
       setPageOrder(Array.from({ length: n }, (_, i) => ({ id: `p${i}`, origIdx: i })))
       setDeletedIds(new Set())
       setCurrentPage(1)
-      setStatus({ type: 'success', msg: `Applied — ${n} page${n !== 1 ? 's' : ''} remaining` })
+      setStatus({ type: 'success', msg: `Changes applied. ${n} page${n !== 1 ? 's' : ''} remain.` })
     } catch (err) {
       setStatus({ type: 'error', msg: `Apply failed: ${err.message}` })
     } finally {
@@ -562,7 +567,7 @@ export default function PDFToolSuite() {
         copied.forEach(p => base.addPage(p))
       }
       const saved = new Uint8Array(await base.save())
-      const newPdfJs = await pdfjsLib.getDocument({ data: saved.slice() }).promise
+      const newPdfJs = await pdfjsLib.getDocument({ isEvalSupported: false, data: saved.slice() }).promise
       const n = newPdfJs.numPages
       setWorkBytes(saved)
       setPdfJs(newPdfJs)
@@ -571,7 +576,7 @@ export default function PDFToolSuite() {
       setDeletedIds(new Set())
       setCurrentPage(1)
       setMergeQueue([])
-      setStatus({ type: 'success', msg: `Merged — ${n} pages total` })
+      setStatus({ type: 'success', msg: `Merge complete. The document has ${n} pages.` })
     } catch (err) {
       setStatus({ type: 'error', msg: `Merge failed: ${err.message}` })
     } finally {
@@ -654,7 +659,7 @@ export default function PDFToolSuite() {
         })
       })
       const saved = new Uint8Array(await doc.save())
-      const newPdfJs = await pdfjsLib.getDocument({ data: saved.slice() }).promise
+      const newPdfJs = await pdfjsLib.getDocument({ isEvalSupported: false, data: saved.slice() }).promise
       setWorkBytes(saved)
       setPdfJs(newPdfJs)
       setStatus({ type: 'success', msg: 'Watermark applied.' })
@@ -687,7 +692,7 @@ export default function PDFToolSuite() {
       })
       form.flatten()
       const saved = new Uint8Array(await doc.save())
-      const newPdfJs = await pdfjsLib.getDocument({ data: saved.slice() }).promise
+      const newPdfJs = await pdfjsLib.getDocument({ isEvalSupported: false, data: saved.slice() }).promise
       setWorkBytes(saved)
       setPdfJs(newPdfJs)
       setFormFields([])
@@ -1109,7 +1114,7 @@ export default function PDFToolSuite() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 12 }}>
                 <label style={labelWrap}>
                   Watermark Text
-                  <input value={wmText} onChange={e => setWmText(e.target.value)} style={fieldInput} placeholder="e.g. CONFIDENTIAL" />
+                  <input value={wmText} onChange={e => setWmText(e.target.value)} style={fieldInput} placeholder="Example: CONFIDENTIAL" />
                 </label>
                 <label style={labelWrap}>
                   Position
@@ -1165,7 +1170,7 @@ export default function PDFToolSuite() {
                         <input
                           value={wmPagesCustom}
                           onChange={e => setWmPagesCustom(e.target.value)}
-                          placeholder="e.g. 1,5-7,32,70,3-1"
+                          placeholder="Example: 1,5-7,32,70,3-1"
                           style={{
                             ...fieldInput,
                             borderColor: invalid ? 'var(--color-error)' : 'var(--color-border-strong)',

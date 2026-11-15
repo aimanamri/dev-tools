@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
+import { parseJson, findUnsafeIntegers } from '../lib/json'
 import {
   Braces, Minimize2, Trash2,
   AlertCircle, CheckCircle2, ClipboardPaste,
@@ -7,11 +8,7 @@ import Button from '../components/ui/Button'
 import CopyButton from '../components/ui/CopyButton'
 
 // ── Parse helpers ─────────────────────────────────────────────────────────────
-function tryParse(text) {
-  if (!text.trim()) return { ok: null, error: null, value: null }
-  try   { return { ok: true,  error: null,      value: JSON.parse(text) } }
-  catch (e) { return { ok: false, error: e.message, value: null } }
-}
+const tryParse = parseJson
 
 // ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ ok }) {
@@ -69,6 +66,8 @@ export default function JSONFormatter() {
   const [indent, setIndent] = useState(2)
 
   const { ok, error, value } = tryParse(input)
+  // Large integers lose precision in JavaScript. Tell the user before they copy the output.
+  const unsafeInts = ok ? findUnsafeIntegers(input) : []
 
   // Derive output whenever input or indent changes
   const derive = useCallback((text, spaces) => {
@@ -100,7 +99,7 @@ export default function JSONFormatter() {
     try {
       const text = await navigator.clipboard.readText()
       handleInputChange(text)
-    } catch { /* permission denied — ignore */ }
+    } catch { /* permission denied: ignore */ }
   }
 
   const inputStats  = input  ? `${input.split('\n').length}L · ${input.length}c`  : null
@@ -188,7 +187,7 @@ export default function JSONFormatter() {
         </div>
       </div>
 
-      {/* ── Split workspace — CSS Grid named areas ── */}
+      {/* ── Split workspace: CSS Grid named areas ── */}
       <div
         style={{
           display: 'grid',
@@ -216,6 +215,16 @@ export default function JSONFormatter() {
           </Panel>
 
           {/* Error message */}
+          {unsafeInts.length > 0 && (
+            <p
+              role="status"
+              className="text-xs font-sans mt-2"
+              style={{ color: 'var(--color-warning)' }}
+            >
+              Warning: the input has integers larger than 2^53 (for example {unsafeInts[0]}).
+              JavaScript rounds these numbers. The output can be different from the input.
+            </p>
+          )}
           {error && (
             <div
               className="flex items-start gap-2 px-3 py-2 text-xs font-sans rounded-xs"
@@ -238,7 +247,7 @@ export default function JSONFormatter() {
             <textarea
               value={output}
               readOnly
-              placeholder="Formatted or minified output appears here."
+              placeholder="The formatted or minified output shows here."
               spellCheck={false}
               style={{
                 ...textareaBase,

@@ -1,3 +1,4 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
@@ -20,7 +21,7 @@ const SHARING_OPTIONS = [
 ]
 
 const HERO_STYLES = [
-  { value: '', label: '— none —' },
+  { value: '', label: 'None' },
   { value: 'basic', label: 'basic' },
   { value: 'big', label: 'big' },
   { value: 'background', label: 'background' },
@@ -28,7 +29,7 @@ const HERO_STYLES = [
 ]
 
 const IMAGE_POSITIONS = [
-  { value: '', label: '— none —' },
+  { value: '', label: 'None' },
   { value: 'top', label: 'top' },
   { value: 'center', label: 'center' },
   { value: 'bottom', label: 'bottom' },
@@ -38,7 +39,7 @@ const IMAGE_POSITIONS = [
 
 const DEFAULT_BODY = `## Introduction
 
-Write your article content here. This editor supports full Markdown — headings, lists, code blocks, links, and more.
+Write your article content here. This editor supports Markdown: headings, lists, code blocks and links.
 
 ## Section One
 
@@ -97,6 +98,12 @@ function ensureMermaid() {
 
 let mermaidSeq = 0
 
+const SANITIZE_OPTS = {
+  ALLOW_DATA_ATTR: true,
+  ADD_ATTR: ['class', 'target'],
+  FORCE_BODY: true,
+}
+
 function processMarkdown(src) {
   ensureMarked()
   const map = new Map()
@@ -115,11 +122,7 @@ function processMarkdown(src) {
   })
 
   let html = marked.parse(text)
-  html = DOMPurify.sanitize(html, {
-    ALLOW_DATA_ATTR: true,
-    ADD_ATTR: ['class', 'target'],
-    FORCE_BODY: true,
-  })
+  html = DOMPurify.sanitize(html, SANITIZE_OPTS)
 
   for (const [k, { math, display }] of map) {
     try {
@@ -133,6 +136,10 @@ function processMarkdown(src) {
       )
     }
   }
+
+  // The math HTML goes in after the first pass. Clean the result again,
+  // because a placeholder can be in an attribute or the fallback can hold raw text.
+  if (map.size) html = DOMPurify.sanitize(html, SANITIZE_OPTS)
   return html
 }
 
@@ -157,11 +164,11 @@ function CopyBtn({ text }) {
   const t = useRef(null)
   useEffect(() => () => clearTimeout(t.current), [])
   function handleCopy() {
-    navigator.clipboard.writeText(text).then(() => {
+    copyText(text).then(() => {
       setCopied(true)
       clearTimeout(t.current)
       t.current = setTimeout(() => setCopied(false), 2000)
-    })
+    }).catch(() => {})
   }
   return (
     <button onClick={handleCopy} title="Copy to clipboard" style={btnStyle(copied)}>
@@ -485,7 +492,7 @@ export default function BlowfishArticleGenerator() {
             <label className="bag-label">
               language suffix
               <span style={{ color: 'var(--color-ink-faint)', marginLeft: '0.375rem', fontWeight: 400 }}>
-                (e.g. en, jp, fr — appended to filename)
+                (for example en, jp or fr. The tool adds it to the file name.)
               </span>
             </label>
             <input
@@ -630,7 +637,7 @@ export default function BlowfishArticleGenerator() {
                 <label className="bag-label">
                   robots
                   <span style={{ color: 'var(--color-ink-faint)', marginLeft: '0.375rem', fontWeight: 400 }}>
-                    (e.g. index, follow)
+                    (for example: index, follow)
                   </span>
                 </label>
                 <input
@@ -781,8 +788,8 @@ export default function BlowfishArticleGenerator() {
             </p>
             <p style={{ marginTop: '0.375rem' }}>
               Multilingual variants: <code>my-post.en.md</code>, <code>my-post.jp.md</code>,{' '}
-              <code>my-post.fr.md</code> — Blowfish maps each language suffix to the
-              corresponding locale defined in{' '}
+              <code>my-post.fr.md</code>. Blowfish connects each language suffix to the
+              locale in{' '}
               <code>config/_default/languages.*.toml</code>.
             </p>
           </div>
@@ -792,11 +799,11 @@ export default function BlowfishArticleGenerator() {
         <div className="bag-docs">
           <p className="bag-docs-heading">Image Placement</p>
 
-          <p className="bag-docs-label">Option 1 — Page Bundle <span className="bag-docs-badge">recommended</span></p>
+          <p className="bag-docs-label">Option 1: Page Bundle <span className="bag-docs-badge">recommended</span></p>
           <p className="bag-docs-body">
-            Rename your article to <code>index.md</code> and place it inside a named folder under{' '}
-            <code>content/</code>. Drop images in the same folder — Blowfish picks up{' '}
-            <code>featured.*</code> and <code>background.*</code> automatically without any front matter entry.
+            Rename your article to <code>index.md</code>. Put it in a folder with a name, below{' '}
+            <code>content/</code>. Put the images in the same folder. Blowfish finds{' '}
+            <code>featured.*</code> and <code>background.*</code> automatically. No front matter entry is necessary.
           </p>
           <pre className="bag-tree">{`content/
 └── posts/
@@ -815,7 +822,7 @@ export default function BlowfishArticleGenerator() {
 
           <div className="bag-docs-divider" />
 
-          <p className="bag-docs-label">Option 2 — Static Folder</p>
+          <p className="bag-docs-label">Option 2: Static Folder</p>
           <p className="bag-docs-body">
             For shared images used across multiple articles, place them in{' '}
             <code>static/img/</code> and use an absolute path starting with <code>/</code>.
@@ -1065,7 +1072,7 @@ const SCOPED_CSS = `
   line-height: 1.65;
 }
 
-/* hljs tokens — always-on dark (sidebar bg) */
+/* hljs tokens: always-on dark (sidebar bg) */
 .bag-hljs-pre .hljs-attr     { color: oklch(0.660 0.125 215); }
 .bag-hljs-pre .hljs-string   { color: oklch(0.640 0.120 145); }
 .bag-hljs-pre .hljs-number   { color: oklch(0.680 0.155 65);  }

@@ -1,27 +1,31 @@
-import { useState, useEffect, useRef } from 'react'
+import { Suspense, useState, useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Toolbar from './Toolbar'
+import ErrorBoundary from '../ErrorBoundary'
+import SiteFooter from './SiteFooter'
 import { useTheme } from '../../hooks/useTheme'
+import { TOOLS } from '../../tools/registry'
+import { SITE, pageFor } from '../../site/meta'
 
-const TOOL_TITLES = {
-  '/password':        'Password Generator',
-  '/timestamp':       'Timestamp Converter',
-  '/json':            'JSON Formatter & Validator',
-  '/base64':          'Base64 Converter',
-  '/cron':            'Cron Expression Generator',
-  '/qr':              'QR Code Generator',
-  '/svg':             'SVG Converter',
-  '/markdown':        'Markdown Live Preview',
-  '/json-convert':    'JSON Data Converters',
-  '/json-tree':       'JSON Tree Viewer',
-  '/json-diff':       'JSON Diff',
-  '/timezone':        'Timezone Converter',
-  '/pydict':          'Python → JSON',
-  '/blowfish':        'Blowfish Config Transpiler',
-  '/blowfish-article':'Hugo Article Generator',
-  '/subnet':          'IP Subnet Calculator',
-  '/ip-convert':      'IP Conversion Tool',
+// The short title in the toolbar for each page.
+const PAGE_TITLES = {
+  ...Object.fromEntries(TOOLS.map(t => [t.path, t.label])),
+  '/disclaimer': 'Disclaimer',
+}
+
+// Keep the document title and the meta description correct when the route changes.
+function useDocumentMeta(pathname) {
+  useEffect(() => {
+    const page = pageFor(pathname)
+    document.title = page.title
+    const set = (selector, value) => document.querySelector(selector)?.setAttribute('content', value)
+    set('meta[name="description"]', page.description)
+    set('meta[property="og:title"]', page.title)
+    set('meta[property="og:description"]', page.description)
+    set('meta[property="og:url"]', SITE.url + page.path)
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', SITE.url + page.path)
+  }, [pathname])
 }
 
 export default function AppShell() {
@@ -31,9 +35,12 @@ export default function AppShell() {
   const { isDark, toggle: toggleTheme } = useTheme()
   const scrollRef = useRef(null)
 
-  const title = TOOL_TITLES[location.pathname] ?? null
+  const title = PAGE_TITLES[location.pathname.replace(/(.)\/+$/, '$1')] ?? null
+  useDocumentMeta(location.pathname)
 
+  // Close the mobile drawer when the route changes.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileOpen(false)
   }, [location.pathname])
 
@@ -42,10 +49,13 @@ export default function AppShell() {
   return (
     <div
       id="app-root"
+      onKeyDown={e => { if (e.key === 'Escape' && mobileOpen) setMobileOpen(false) }}
       className="flex h-screen w-screen overflow-hidden"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
-      {/* Mobile overlay — always mounted, fades in/out to avoid pop */}
+      <a href="#main-content" className="skip-link">Skip to the main content</a>
+
+      {/* Mobile overlay: always mounted, fades in/out to avoid pop */}
       <div
         className="fixed inset-0 z-modal-backdrop md:hidden"
         style={{
@@ -58,19 +68,19 @@ export default function AppShell() {
         onClick={() => setMobileOpen(false)}
       />
 
-      {/* Sidebar — desktop, width animates with strong ease-out */}
+      {/* Sidebar: desktop, width animates with strong ease-out */}
       <div
         className="flex-shrink-0 h-full hidden md:block"
         style={{
           width: sidebarWidth,
-          // Specify exact property — never transition: all
+          // Specify exact property: never transition: all
           transition: 'width 220ms cubic-bezier(0.23, 1, 0.32, 1)',
         }}
       >
         <Sidebar collapsed={collapsed} />
       </div>
 
-      {/* Sidebar — mobile drawer with iOS pull-from-edge easing */}
+      {/* Sidebar: mobile drawer with iOS pull-from-edge easing */}
       <div
         className="fixed left-0 top-0 h-full z-modal md:hidden"
         style={{
@@ -80,7 +90,7 @@ export default function AppShell() {
           transition: 'transform 280ms cubic-bezier(0.32, 0.72, 0, 1)',
         }}
       >
-        <Sidebar collapsed={false} />
+        <Sidebar collapsed={false} hidden={!mobileOpen} />
       </div>
 
       {/* Main content */}
@@ -100,11 +110,24 @@ export default function AppShell() {
         />
 
         <main
+          id="main-content"
+          tabIndex={-1}
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-6"
           style={{ backgroundColor: 'transparent' }}
         >
-          <Outlet context={{ scrollRef }} />
+          <Suspense
+            fallback={
+              <p role="status" className="text-sm" style={{ color: 'var(--color-ink-muted)' }}>
+                Loading the tool.
+              </p>
+            }
+          >
+            <ErrorBoundary resetKey={location.pathname}>
+              <Outlet context={{ scrollRef }} />
+            </ErrorBoundary>
+          </Suspense>
+          <SiteFooter />
         </main>
       </div>
     </div>

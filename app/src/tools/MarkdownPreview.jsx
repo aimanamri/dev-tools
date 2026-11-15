@@ -1,3 +1,4 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useEffect, useRef } from 'react'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
@@ -54,6 +55,12 @@ let mermaidSeq = 0
 
 // ── Markdown → HTML pipeline ─────────────────────────────────────────────────
 
+const SANITIZE_OPTS = {
+  ALLOW_DATA_ATTR: true,
+  ADD_ATTR: ['class', 'target'],
+  FORCE_BODY: true,
+}
+
 function processMarkdown(src) {
   ensureMarked()
   const map = new Map()
@@ -75,11 +82,7 @@ function processMarkdown(src) {
 
   let html = marked.parse(text)
 
-  html = DOMPurify.sanitize(html, {
-    ALLOW_DATA_ATTR: true,
-    ADD_ATTR: ['class', 'target'],
-    FORCE_BODY: true,
-  })
+  html = DOMPurify.sanitize(html, SANITIZE_OPTS)
 
   for (const [k, { math, display }] of map) {
     try {
@@ -89,6 +92,10 @@ function processMarkdown(src) {
       html = html.replace(k, () => `<code>${display ? '$$' : '$'}${math}${display ? '$$' : '$'}</code>`)
     }
   }
+
+  // The math HTML goes in after the first pass. Clean the result again,
+  // because a placeholder can be in an attribute or the fallback can hold raw text.
+  if (map.size) html = DOMPurify.sanitize(html, SANITIZE_OPTS)
 
   return html
 }
@@ -105,7 +112,7 @@ function triggerDownload(content, filename, mime) {
 
 const DEFAULT_MD = `# Markdown Live Preview
 
-Start typing — the preview updates as you write.
+Start to type. The preview changes as you write.
 
 ## What's supported
 
@@ -306,7 +313,7 @@ const STYLES = `
 .md-prose .mermaid-pending::before { content: 'Rendering diagram…'; }
 .md-prose .mermaid-error { background: var(--color-surface); border: 1px solid var(--color-border); border-left: 3px solid var(--color-error); border-radius: 6px; padding: 0.75rem 1rem; margin: 0 0 0.875rem; font-size: 0.75rem; font-family: var(--font-mono); color: var(--color-error); }
 
-/* Coffee preview — always-on warm brown palette */
+/* Coffee preview: always-on warm brown palette */
 .mdt-preview-scroll .md-prose h1,
 .mdt-preview-scroll .md-prose h2,
 .mdt-preview-scroll .md-prose h3,
@@ -335,7 +342,7 @@ const STYLES = `
 .mdt-preview-scroll .md-prose .mermaid-rendered foreignObject span { color: oklch(0.910 0.014 250) !important; }
 .mdt-preview-scroll .md-prose .mermaid-pending { background: oklch(0.165 0.040 255); border-color: oklch(0.300 0.040 255); color: oklch(0.460 0.028 250); }
 .mdt-preview-scroll .md-prose .mermaid-error { background: oklch(0.165 0.040 255); border-color: oklch(0.300 0.040 255); }
-/* hljs syntax — always dark in preview pane */
+/* hljs syntax: always dark in preview pane */
 .mdt-preview-scroll .md-prose .hljs { color: oklch(0.910 0.014 250); }
 .mdt-preview-scroll .md-prose .hljs-keyword,
 .mdt-preview-scroll .md-prose .hljs-selector-tag { color: #c792ea; }
@@ -404,7 +411,7 @@ export default function MarkdownPreview() {
         wrap.className = 'mermaid-rendered'
         // mermaid securityLevel:'strict' already HTML-escapes all user labels;
         // DOMPurify strips xmlns on the <div> inside <foreignObject>, which
-        // prevents the browser from rendering label text as HTML — so we skip it.
+        // prevents the browser from rendering label text as HTML: so we skip it.
         wrap.innerHTML = svg
         el.replaceWith(wrap)
       } catch (err) {
@@ -440,7 +447,7 @@ export default function MarkdownPreview() {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Exported Document</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.17.0/dist/katex.min.css" integrity="sha384-vlBdW0r3AcZO/HboRPznQNowvexd3fY8qHOWkBi5q7KGgqJ+F48+DceybYmrVbmB" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.1/dist/katex.min.css" integrity="sha384-WwGtaC6ywCHxA5cstpj/3+xIZvTez8dq2IcBQaXRkenHZ7FVVq1ZROtURwfbtTlG" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github.css" integrity="sha384-Uhn9VRzdRxBVYRT2aPFl8ECva7znqyZwWiqpE3v4GTBe8y2XrpwTWZtU1U5vujcN" crossorigin="anonymous">
 <style>
   body{font-family:system-ui,sans-serif;max-width:800px;margin:2rem auto;padding:0 1.5rem;color:#1a1a1a;line-height:1.6}
@@ -467,7 +474,7 @@ ${safeInner}
   }
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(source)
+    await copyText(source)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -501,7 +508,7 @@ ${safeInner}
         <div className="mdt-bar-right">
           <button className="mdt-btn" onClick={handleCopy}>
             {copied ? <Check size={13} /> : <Copy size={13} />}
-            {copied ? 'Copied!' : 'Copy Source'}
+            {copied ? 'Copied' : 'Copy Source'}
           </button>
           <div className="mdt-toggle">
             {VIEWS.map(({ id, icon, label }) => (
@@ -532,7 +539,7 @@ ${safeInner}
               value={source}
               onChange={e => setSource(e.target.value)}
               spellCheck={false}
-              placeholder="Type markdown here…"
+              placeholder="Type Markdown here."
             />
           </div>
         )}
@@ -560,7 +567,7 @@ ${safeInner}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8, background: 'color-mix(in oklch, var(--color-success) 10%, var(--color-surface))', border: '1px solid var(--color-success)', marginTop: 16 }}>
         <ShieldCheck size={16} strokeWidth={1.5} style={{ color: 'var(--color-success)', flexShrink: 0, marginTop: 1 }} />
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)', margin: 0, lineHeight: 1.55 }}>
-          Markdown is rendered entirely in your browser. Your content never leaves your device or touches any server.
+          Your browser renders the Markdown. Your content stays on your device.
         </p>
       </div>
 

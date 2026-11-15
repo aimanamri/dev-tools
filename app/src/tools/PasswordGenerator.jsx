@@ -1,3 +1,4 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { Copy, Check, RefreshCw, Shield, ShieldCheck } from 'lucide-react'
 import Button from '../components/ui/Button'
@@ -77,13 +78,6 @@ const STRENGTH_COLORS = [
   'var(--color-success)',
   'var(--color-success)',
 ]
-const STRENGTH_BG = [
-  'oklch(0.490 0.195 18 / 0.15)',
-  'oklch(0.490 0.195 18 / 0.15)',
-  'oklch(0.560 0.175 65 / 0.15)',
-  'oklch(0.480 0.140 145 / 0.15)',
-  'oklch(0.480 0.140 145 / 0.15)',
-]
 
 // ── Toggle / Checkbox primitives ──────────────────────────────────────────────
 function Checkbox({ id, label, checked, onChange, disabled }) {
@@ -156,18 +150,20 @@ export default function PasswordGenerator() {
     setPassword(generatePassword(length, buildPool(opts)))
   }, [length, opts])
 
+  // Make a new password when the options change.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     regenerate()
   }, [regenerate])
   useEffect(() => () => clearTimeout(copiedTimer.current), [])
 
   function handleCopy() {
     if (!password) return
-    navigator.clipboard.writeText(password).then(() => {
+    copyText(password).then(() => {
       setCopied(true)
       clearTimeout(copiedTimer.current)
       copiedTimer.current = setTimeout(() => setCopied(false), 2000)
-    })
+    }).catch(() => {})
   }
 
   function toggle(key) {
@@ -199,7 +195,7 @@ export default function PasswordGenerator() {
               className="flex-1 text-sm font-sans italic"
               style={{ color: 'var(--color-ink-faint)' }}
             >
-              Select at least one character type
+              Select one character type or more.
             </span>
           ) : (
             <span
@@ -232,8 +228,8 @@ export default function PasswordGenerator() {
               }}
               onMouseEnter={e => { if (!copied && !noPool) e.currentTarget.style.backgroundColor = 'var(--color-surface)' }}
               onMouseLeave={e => { if (!copied) e.currentTarget.style.backgroundColor = 'transparent' }}
-              title={copied ? 'Copied!' : 'Copy to clipboard'}
-              aria-label={copied ? 'Copied!' : 'Copy to clipboard'}
+              title={copied ? 'Copied' : 'Copy to clipboard'}
+              aria-label={copied ? 'Copied' : 'Copy to clipboard'}
             >
               {copied ? <Check size={15} strokeWidth={2} /> : <Copy size={15} strokeWidth={1.5} />}
             </button>
@@ -253,7 +249,7 @@ export default function PasswordGenerator() {
               </span>
             </div>
             <span className="text-xs font-mono" style={{ color: 'var(--color-ink-muted)' }}>
-              {noPool ? '—' : `~${crack} to crack`}
+              {noPool ? '-' : `About ${crack} to break`}
             </span>
           </div>
 
@@ -276,7 +272,7 @@ export default function PasswordGenerator() {
               Pool size: {pool.length} chars
             </span>
             <span className="text-2xs font-mono" style={{ color: 'var(--color-ink-faint)' }}>
-              {noPool ? '—' : `${Math.round(entropy)} bits of entropy`}
+              {noPool ? '-' : `${Math.round(entropy)} bits of entropy`}
             </span>
           </div>
         </div>
@@ -362,7 +358,7 @@ export default function PasswordGenerator() {
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8, background: 'color-mix(in oklch, var(--color-success) 10%, var(--color-surface))', border: '1px solid var(--color-success)' }}>
         <ShieldCheck size={16} strokeWidth={1.5} style={{ color: 'var(--color-success)', flexShrink: 0, marginTop: 1 }} />
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)', margin: 0, lineHeight: 1.55 }}>
-          Passwords are generated entirely in your browser using <code style={{ fontFamily: 'var(--font-mono)' }}>crypto.getRandomValues()</code>. Nothing is sent to any server.
+          Your browser makes each password with <code style={{ fontFamily: 'var(--font-mono)' }}>crypto.getRandomValues()</code>. The site sends no data to a server.
         </p>
       </div>
 

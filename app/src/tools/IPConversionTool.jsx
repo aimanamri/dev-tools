@@ -1,3 +1,4 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useCallback } from 'react'
 import { Copy, Check, RotateCcw, ArrowLeftRight } from 'lucide-react'
 
@@ -48,10 +49,10 @@ function CopyBtn({ value, disabled }) {
   const [copied, setCopied] = useState(false)
   const copy = () => {
     if (!value || disabled) return
-    navigator.clipboard.writeText(value).then(() => {
+    copyText(value).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
-    })
+    }).catch(() => {})
   }
   return (
     <button
@@ -92,7 +93,7 @@ function OutputRow({ label, value, highlight }) {
           className="text-sm font-mono break-all leading-snug"
           style={{ color: 'var(--color-ink)' }}
         >
-          {value || <span style={{ color: 'var(--color-ink-faint)' }}>—</span>}
+          {value || <span style={{ color: 'var(--color-ink-faint)' }}>-</span>}
         </p>
       </div>
       <CopyBtn value={value} disabled={!value} />
@@ -122,7 +123,7 @@ export default function IPConversionTool() {
       return
     }
     if (!validateIPv4(val)) {
-      setIpError('Invalid IPv4 address — expected four octets (0–255) separated by dots.')
+      setIpError('The IPv4 address is not valid. Use four numbers from 0 to 255 with dots between them.')
       setIpResult(null)
       return
     }
@@ -147,12 +148,12 @@ export default function IPConversionTool() {
       return
     }
     if (clean.length < 32) {
-      setBinError(`Need exactly 32 bits — ${clean.length} entered so far.`)
+      setBinError(`32 bits are necessary. You entered ${clean.length}.`)
       setBinResult(null)
       return
     }
     if (!validateBinary(val)) {
-      setBinError('Binary string must be exactly 32 bits (0s and 1s only, dots optional).')
+      setBinError('The binary value must have 32 bits. Use only 0 and 1. Dots are optional.')
       setBinResult(null)
       return
     }
@@ -220,7 +221,7 @@ export default function IPConversionTool() {
           </button>
         </div>
         <p className="text-sm mt-1" style={{ color: 'var(--color-ink-muted)' }}>
-          Convert IPv4 addresses to 32-bit binary and back. All processing is client-side.
+          Convert an IPv4 address to 32-bit binary, or binary to an address. All work occurs in your browser.
         </p>
       </div>
 
@@ -253,7 +254,7 @@ export default function IPConversionTool() {
               type="text"
               value={ipInput}
               onChange={e => handleIpChange(e.target.value)}
-              placeholder="e.g. 192.168.1.1"
+              placeholder="Example: 192.168.1.1"
               spellCheck={false}
               style={{
                 ...inputBase,
@@ -347,7 +348,7 @@ export default function IPConversionTool() {
               type="text"
               value={binInput}
               onChange={e => handleBinChange(e.target.value)}
-              placeholder="e.g. 11000000.10101000.00000001.00000001"
+              placeholder="Example: 11000000.10101000.00000001.00000001"
               spellCheck={false}
               maxLength={35}
               style={{
@@ -419,7 +420,7 @@ export default function IPConversionTool() {
           className="px-4 py-2.5 text-xs font-semibold"
           style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-ink-muted)', borderBottom: '1px solid var(--color-border)' }}
         >
-          Quick Reference — Common Addresses
+          Quick Reference: Common Addresses
         </div>
         <div className="overflow-x-auto" style={{ backgroundColor: 'var(--color-input-bg)' }}>
           <table className="w-full text-xs font-mono">

@@ -1,26 +1,29 @@
+import { lazy } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import AppShell from './components/shell/AppShell'
 import Home from './tools/Home'
-import Placeholder from './tools/Placeholder'
-import PasswordGenerator from './tools/PasswordGenerator'
-import TimestampConverter from './tools/TimestampConverter'
-import JSONFormatter from './tools/JSONFormatter'
-import Base64Converter from './tools/Base64Converter'
-import CronGenerator from './tools/CronGenerator'
-import QRGenerator from './tools/QRGenerator'
-import SVGConverter from './tools/SVGConverter'
-import MarkdownPreview from './tools/MarkdownPreview'
-import JSONConverters from './tools/JSONConverters'
-import JSONTreeViewer from './tools/JSONTreeViewer'
-import JSONDiff from './tools/JSONDiff'
-import TimezoneConverter from './tools/TimezoneConverter'
-import PythonDictConverter from './tools/PythonDictConverter'
-import BlowfishTranspiler from './tools/BlowfishTranspiler'
-import BlowfishArticleGenerator from './tools/BlowfishArticleGenerator'
-import IPSubnetCalculator from './tools/IPSubnetCalculator'
-import IPConversionTool from './tools/IPConversionTool'
-import PDFToolSuite from './tools/PDFToolSuite'
-import PDFSecurityTool from './tools/PDFSecurityTool'
+
+// Each tool loads only when the user opens it.
+const Disclaimer = lazy(() => import('./pages/Disclaimer'))
+const PasswordGenerator = lazy(() => import('./tools/PasswordGenerator'))
+const TimestampConverter = lazy(() => import('./tools/TimestampConverter'))
+const JSONFormatter = lazy(() => import('./tools/JSONFormatter'))
+const Base64Converter = lazy(() => import('./tools/Base64Converter'))
+const CronGenerator = lazy(() => import('./tools/CronGenerator'))
+const QRGenerator = lazy(() => import('./tools/QRGenerator'))
+const SVGConverter = lazy(() => import('./tools/SVGConverter'))
+const MarkdownPreview = lazy(() => import('./tools/MarkdownPreview'))
+const JSONConverters = lazy(() => import('./tools/JSONConverters'))
+const JSONTreeViewer = lazy(() => import('./tools/JSONTreeViewer'))
+const JSONDiff = lazy(() => import('./tools/JSONDiff'))
+const TimezoneConverter = lazy(() => import('./tools/TimezoneConverter'))
+const PythonDictConverter = lazy(() => import('./tools/PythonDictConverter'))
+const BlowfishTranspiler = lazy(() => import('./tools/BlowfishTranspiler'))
+const BlowfishArticleGenerator = lazy(() => import('./tools/BlowfishArticleGenerator'))
+const IPSubnetCalculator = lazy(() => import('./tools/IPSubnetCalculator'))
+const IPConversionTool = lazy(() => import('./tools/IPConversionTool'))
+const PDFToolSuite = lazy(() => import('./tools/PDFToolSuite'))
+const PDFSecurityTool = lazy(() => import('./tools/PDFSecurityTool'))
 
 export default function App() {
   return (
@@ -47,6 +50,7 @@ export default function App() {
           <Route path="/ip-convert"   element={<IPConversionTool />} />
           <Route path="/pdf"           element={<PDFToolSuite />} />
           <Route path="/pdf-security"  element={<PDFSecurityTool />} />
+          <Route path="/disclaimer"    element={<Disclaimer />} />
           <Route path="*"              element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

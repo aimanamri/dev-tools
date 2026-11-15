@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "name": "logo16",
+  "width": 16,
+  "height": 16,
+  "palette": {
+    "k": "#030914",
+    "n": "#0b192b",
+    "d": "#164257",
+    "p": "#3a6075",
+    "b": "#4a97b7",
+    "l": "#95c6dc",
+    "w": "#e7eef5",
+    "m": "#8b97a3",
+    "y": "#fabb41"
+  },
+  "frames": [
+    {
+      "name": "on",
+      "ops": [
+        {
+          "op": "grid",
+          "x": 0,
+          "y": 0,
+          "rows": [
+            ".dddddddddddddd.",
+            "ddppppppppppppdd",
+            "dpplplpppppppppd",
+            "dppppppppppppppd",
+            "dppkkkkkkkkkkppd",
+            "dpkkkkkkkkkkkkpd",
+            "dpkkwkkkkkkkkkpd",
+            "dpkkkwkkkkkkkkpd",
+            "dpkkkkwkkkkkkkpd",
+            "dpkkkwkkkkkkkkpd",
+            "dpkkwkkkyyyykkpd",
+            "dpkkkkkkkkkkkkpd",
+            "dpkkkkkkkkkkkkpd",
+            "dppkkkkkkkkkkppd",
+            "ddppppppppppppdd",
+            ".dddddddddddddd."
+          ]
+        }
+      ]
+    }
+  ]
+}
