@@ -8,6 +8,7 @@
 
 [**Open the live site: devtools.aimanuddin.com**](https://devtools.aimanuddin.com)
 
+[![CI](https://github.com/aimanamri/dev-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/aimanamri/dev-tools/actions/workflows/ci.yml)
 [![Version](https://img.shields.io/github/package-json/v/aimanamri/dev-tools?filename=app%2Fpackage.json&label=version)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
@@ -124,6 +125,7 @@ dev-tools/
 │  ├─ release.mjs              SemVer bump from commit messages, CHANGELOG.md
 │  └─ zip-dist.mjs             Packs app/dist into release/devtools-v<version>.zip
 ├─ .github/assets/             README banner and logo GIFs
+├─ .github/workflows/ci.yml    CI: lint, tests, build and a Docker test for each pull request
 ├─ Dockerfile, compose.yaml    Production container (nginx, non-root)
 ├─ nginx.conf                  nginx site configuration for the container
 ├─ nginx-security-headers.inc  Security headers that nginx.conf includes
