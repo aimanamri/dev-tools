@@ -9,7 +9,7 @@
 [**Open the live site: devtools.aimanuddin.com**](https://devtools.aimanuddin.com)
 
 [![CI](https://github.com/aimanamri/dev-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/aimanamri/dev-tools/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/github/package-json/v/aimanamri/dev-tools?filename=app%2Fpackage.json&label=version)](CHANGELOG.md)
+[![Version](https://img.shields.io/github/v/tag/aimanamri/dev-tools?sort=semver&label=version)](https://github.com/aimanamri/dev-tools/tags)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
 [![Vite 8](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev)
