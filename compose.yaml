@@ -5,7 +5,7 @@ services:
     build:
       context: .
       args:
-        VERSION: "1.1.0"
+        VERSION: "1.2.0"
     image: dev-tools:latest
     container_name: dev-tools
     ports:
