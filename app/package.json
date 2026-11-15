@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:zip": "npm run build && node scripts/zip-dist.mjs",
+    "build:zip": "npm run build && node ../scripts/zip-dist.mjs",
     "lint": "eslint .",
     "test": "vitest run",
     "preview": "vite preview"

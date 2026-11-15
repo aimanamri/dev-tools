@@ -141,6 +141,7 @@ PROMPTS/*
 # Project markdown docs (dev-only)
 *.md
 !README.md
+!CHANGELOG.md
 
 # Claude project config
 .claude/
@@ -148,3 +149,7 @@ graphify-out/
 
 # Branding build output (branding/build.mjs copies it into app/public)
 branding/out/
+
+# Release archives made by npm run build:zip
+release/
+*.zip
