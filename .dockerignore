@@ -1,10 +1,20 @@
-app/node_modules
-app/dist
+# Send only what the build needs to the Docker daemon.
+**/node_modules
+**/dist
+**/dev-dist
 app/.cache
+release
+*.zip
 .git
+.github
 .claude
 graphify-out
+PROMPTS
+branding
+scripts
 *.md
-!README.md
+docker-compose.yaml
+compose.yaml
 .env
 .env.*
+**/.DS_Store

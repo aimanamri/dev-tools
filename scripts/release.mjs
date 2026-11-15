@@ -102,6 +102,12 @@ function writeVersion(version) {
     if (f.endsWith('package-lock.json') && json.packages?.['']) json.packages[''].version = version
     writeFileSync(path, JSON.stringify(json, null, 2) + '\n')
   }
+  // The image label in compose.yaml
+  const compose = join(root, 'compose.yaml')
+  if (existsSync(compose)) {
+    const text = readFileSync(compose, 'utf8')
+    writeFileSync(compose, text.replace(/(VERSION:\s*")[^"]*(")/, `$1${version}$2`))
+  }
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
@@ -139,7 +145,7 @@ writeFileSync(clPath, header + entry + '\n' + old)
 console.log(`Wrote version ${next} to ${VERSION_FILES.join(', ')} and CHANGELOG.md.`)
 
 if (doCommit) {
-  git('add', ...VERSION_FILES, 'CHANGELOG.md')
+  git('add', ...VERSION_FILES, 'compose.yaml', 'CHANGELOG.md')
   git('commit', '-m', `chore(release): v${next}`)
   git('tag', '-a', `v${next}`, '-m', `v${next}`)
   console.log(`Made the commit and the tag v${next}. To publish: git push --follow-tags`)
