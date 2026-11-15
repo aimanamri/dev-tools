@@ -4,6 +4,7 @@ import AppShell from './components/shell/AppShell'
 import Home from './tools/Home'
 
 // Each tool loads only when the user opens it.
+const Disclaimer = lazy(() => import('./pages/Disclaimer'))
 const PasswordGenerator = lazy(() => import('./tools/PasswordGenerator'))
 const TimestampConverter = lazy(() => import('./tools/TimestampConverter'))
 const JSONFormatter = lazy(() => import('./tools/JSONFormatter'))
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="/ip-convert"   element={<IPConversionTool />} />
           <Route path="/pdf"           element={<PDFToolSuite />} />
           <Route path="/pdf-security"  element={<PDFSecurityTool />} />
+          <Route path="/disclaimer"    element={<Disclaimer />} />
           <Route path="*"              element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

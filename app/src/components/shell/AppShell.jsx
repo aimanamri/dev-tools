@@ -6,11 +6,26 @@ import ErrorBoundary from '../ErrorBoundary'
 import SiteFooter from './SiteFooter'
 import { useTheme } from '../../hooks/useTheme'
 import { TOOLS } from '../../tools/registry'
+import { SITE, pageFor } from '../../site/meta'
 
-// Page titles come from the tool registry. Add other pages here.
+// The short title in the toolbar for each page.
 const PAGE_TITLES = {
   ...Object.fromEntries(TOOLS.map(t => [t.path, t.label])),
   '/disclaimer': 'Disclaimer',
+}
+
+// Keep the document title and the meta description correct when the route changes.
+function useDocumentMeta(pathname) {
+  useEffect(() => {
+    const page = pageFor(pathname)
+    document.title = page.title
+    const set = (selector, value) => document.querySelector(selector)?.setAttribute('content', value)
+    set('meta[name="description"]', page.description)
+    set('meta[property="og:title"]', page.title)
+    set('meta[property="og:description"]', page.description)
+    set('meta[property="og:url"]', SITE.url + page.path)
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', SITE.url + page.path)
+  }, [pathname])
 }
 
 export default function AppShell() {
@@ -20,7 +35,8 @@ export default function AppShell() {
   const { isDark, toggle: toggleTheme } = useTheme()
   const scrollRef = useRef(null)
 
-  const title = PAGE_TITLES[location.pathname] ?? null
+  const title = PAGE_TITLES[location.pathname.replace(/(.)\/+$/, '$1')] ?? null
+  useDocumentMeta(location.pathname)
 
   // Close the mobile drawer when the route changes.
   useEffect(() => {

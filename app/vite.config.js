@@ -2,6 +2,8 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { readFileSync } from 'node:fs'
+import seoPlugin from './build/seo-plugin.js'
+import { SITE } from './src/site/meta.js'
 
 // package.json is the one source of the version number.
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
@@ -22,6 +24,7 @@ export default defineConfig({
   preview: { headers: SECURITY_HEADERS },
   plugins: [
     react(),
+    seoPlugin({ version: pkg.version }),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
@@ -34,9 +37,9 @@ export default defineConfig({
       manifest: {
         name: 'Dev Tools',
         short_name: 'DevTools',
-        description: '19 free browser-based developer utilities. JSON, PDF, QR codes, timestamps, subnet calculator, Markdown, and more. No server, no sign-up, no tracking.',
-        theme_color: '#863bff',
-        background_color: '#1e1e1e',
+        description: SITE.description,
+        theme_color: SITE.themeColor,
+        background_color: '#151d2b',
         display: 'standalone',
         start_url: '/',
         scope: '/',

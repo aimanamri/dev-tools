@@ -5,11 +5,18 @@
 AddType application/javascript .mjs
 
 Options -MultiViews
+# Serve /json from /json/index.html without a redirect to /json/
+DirectorySlash Off
 RewriteEngine On
 
 # ── Force HTTPS ───────────────────────────────────────────────────────────────
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# ── Pages with their own HTML (made by build/seo-plugin.js) ───────────────────
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_FILENAME}/index.html -f
+RewriteRule ^(.+?)/?$ $1/index.html [L]
 
 # ── SPA routing: send non-file/non-directory requests to index.html ──────────
 RewriteCond %{REQUEST_FILENAME} !-f
