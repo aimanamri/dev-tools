@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { PanelLeftClose, PanelLeftOpen, ChevronRight, Sun, Moon } from 'lucide-react'
+import { PanelLeftClose, PanelLeftOpen, Sun, Moon } from 'lucide-react'
 
 function formatDateTime(date) {
   const day  = date.toLocaleDateString('en-US', { weekday: 'short' })
@@ -79,12 +79,14 @@ export default function Toolbar({ title, collapsed, isDark, onToggleTheme, onTog
         onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
         title="Home"
       >
-        <div
-          className="flex items-center justify-center w-5 h-5 rounded-xs flex-shrink-0"
-          style={{ backgroundColor: 'var(--color-primary)' }}
-        >
-          <ChevronRight size={11} color="white" strokeWidth={2.5} />
-        </div>
+        <img
+            src="/logo.svg"
+            alt=""
+            width={20}
+            height={20}
+            className="pixel-art"
+            style={{ flexShrink: 0, display: 'block' }}
+          />
         <span
           className="text-sm font-mono font-semibold tracking-tight leading-none hidden sm:block"
           style={{ color: 'var(--color-ink-on-sidebar)' }}

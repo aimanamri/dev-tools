@@ -590,6 +590,15 @@ function Hero({ container, onExplore }) {
             opacity: 0.35,
           }}
         />
+        <motion.img
+          src="/logo.svg"
+          alt=""
+          width={64}
+          height={64}
+          variants={fade} initial="hidden" animate="show"
+          className="pixel-art relative mb-6"
+          style={{ display: 'block' }}
+        />
         <motion.h1
           variants={containerV}
           initial="hidden"

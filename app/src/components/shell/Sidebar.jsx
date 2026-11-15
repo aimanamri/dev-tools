@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { ChevronRight } from 'lucide-react'
 import GitHubIcon from '../icons/GitHubIcon'
 import { REPO_URL } from './SiteFooter'
 import { TOOLS } from '../../tools/registry'
@@ -117,20 +116,14 @@ export default function Sidebar({ collapsed, hidden = false }) {
           flexShrink: 0,
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 28,
-            height: 28,
-            borderRadius: 4,
-            flexShrink: 0,
-            backgroundColor: 'var(--color-primary)',
-          }}
-        >
-          <ChevronRight size={14} color="white" strokeWidth={2.5} />
-        </div>
+        <img
+              src="/logo.svg"
+              alt=""
+              width={28}
+              height={28}
+              className="pixel-art"
+              style={{ flexShrink: 0, display: 'block' }}
+            />
 
         {/* Wordmark fades and collapses with the sidebar */}
         <span

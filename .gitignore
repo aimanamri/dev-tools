@@ -145,3 +145,6 @@ PROMPTS/*
 # Claude project config
 .claude/
 graphify-out/
+
+# Branding build output (branding/build.mjs copies it into app/public)
+branding/out/

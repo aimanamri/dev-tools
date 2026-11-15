@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "name": "logo32",
+  "width": 32,
+  "height": 32,
+  "palette": {
+    "k": "#030914",
+    "n": "#0b192b",
+    "d": "#164257",
+    "p": "#3a6075",
+    "b": "#4a97b7",
+    "l": "#95c6dc",
+    "w": "#e7eef5",
+    "m": "#8b97a3",
+    "y": "#fabb41"
+  },
+  "frames": [
+    {
+      "name": "on",
+      "duration": 530,
+      "ops": [
+        {
+          "op": "grid",
+          "x": 0,
+          "y": 0,
+          "rows": [
+            "..dddddddddddddddddddddddddddd..",
+            ".ddppppppppppppppppppppppppppdd.",
+            "ddppppppppppppppppppppppppppppdd",
+            "dppppppppppppppppppppppppppppppd",
+            "dppppllpllpllppppppppppppppppppd",
+            "dppppllpllpllppppppppppppppppppd",
+            "dppppppppppppppppppppppppppppppd",
+            "dppppppppppppppppppppppppppppppd",
+            "dpppkkkkkkkkkkkkkkkkkkkkkkkkpppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkwwkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkwwkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkwwkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkwwkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkwwkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkwwkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkwwkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkwwkkkkkkyyyyyyyykkkkkppd",
+            "dppkkkkwwkkkkkkkyyyyyyyykkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dpppkkkkkkkkkkkkkkkkkkkkkkkkpppd",
+            "ddppppppppppppppppppppppppppppdd",
+            ".ddppppppppppppppppppppppppppdd.",
+            "..dddddddddddddddddddddddddddd.."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "off",
+      "duration": 530,
+      "ops": [
+        {
+          "op": "grid",
+          "x": 0,
+          "y": 0,
+          "rows": [
+            "..dddddddddddddddddddddddddddd..",
+            ".ddppppppppppppppppppppppppppdd.",
+            "ddppppppppppppppppppppppppppppdd",
+            "dppppppppppppppppppppppppppppppd",
+            "dppppllpllpllppppppppppppppppppd",
+            "dppppllpllpllppppppppppppppppppd",
+            "dppppppppppppppppppppppppppppppd",
+            "dppppppppppppppppppppppppppppppd",
+            "dpppkkkkkkkkkkkkkkkkkkkkkkkkpppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkwwkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkwwkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkwwkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkwwkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkwwkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkwwkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkwwkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkwwkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkwwkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dppkkkkkkkkkkkkkkkkkkkkkkkkkkppd",
+            "dpppkkkkkkkkkkkkkkkkkkkkkkkkpppd",
+            "ddppppppppppppppppppppppppppppdd",
+            ".ddppppppppppppppppppppppppppdd.",
+            "..dddddddddddddddddddddddddddd.."
+          ]
+        }
+      ]
+    }
+  ]
+}

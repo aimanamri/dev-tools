@@ -78,6 +78,9 @@
   }
   .skip-link:focus { top: 8px; }
 
+  /* Keep pixel art sharp when the browser scales it */
+  .pixel-art { image-rendering: pixelated; }
+
   .sidebar-repo-link:hover { color: var(--color-ink-on-sidebar) !important; }
 
   /* All clickable buttons get a pointer cursor */
