@@ -456,7 +456,7 @@ export default function PDFSecurityTool() {
       {/* ── ENCRYPT panel ──────────────────────────────────────────────────── */}
       {mode === 'encrypt' && (
         <>
-          {!file ? <DropZone /> : <FileCard />}
+          {!file ? DropZone() : FileCard()}
 
           {file && (
             <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-strong)', borderRadius: 8, padding: 20, marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -536,7 +536,7 @@ export default function PDFSecurityTool() {
       {/* ── UNLOCK panel ───────────────────────────────────────────────────── */}
       {mode === 'unlock' && (
         <>
-          {!file ? <DropZone /> : <FileCard />}
+          {!file ? DropZone() : FileCard()}
 
           {/* Encryption detection badge */}
           {file && pdfEncStatus === 'checking' && (

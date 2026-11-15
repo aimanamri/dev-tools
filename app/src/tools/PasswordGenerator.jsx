@@ -1,3 +1,4 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { Copy, Check, RefreshCw, Shield, ShieldCheck } from 'lucide-react'
 import Button from '../components/ui/Button'
@@ -77,13 +78,6 @@ const STRENGTH_COLORS = [
   'var(--color-success)',
   'var(--color-success)',
 ]
-const STRENGTH_BG = [
-  'oklch(0.490 0.195 18 / 0.15)',
-  'oklch(0.490 0.195 18 / 0.15)',
-  'oklch(0.560 0.175 65 / 0.15)',
-  'oklch(0.480 0.140 145 / 0.15)',
-  'oklch(0.480 0.140 145 / 0.15)',
-]
 
 // ── Toggle / Checkbox primitives ──────────────────────────────────────────────
 function Checkbox({ id, label, checked, onChange, disabled }) {
@@ -156,18 +150,20 @@ export default function PasswordGenerator() {
     setPassword(generatePassword(length, buildPool(opts)))
   }, [length, opts])
 
+  // Make a new password when the options change.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     regenerate()
   }, [regenerate])
   useEffect(() => () => clearTimeout(copiedTimer.current), [])
 
   function handleCopy() {
     if (!password) return
-    navigator.clipboard.writeText(password).then(() => {
+    copyText(password).then(() => {
       setCopied(true)
       clearTimeout(copiedTimer.current)
       copiedTimer.current = setTimeout(() => setCopied(false), 2000)
-    })
+    }).catch(() => {})
   }
 
   function toggle(key) {

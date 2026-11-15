@@ -1,4 +1,6 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { copyText } from '../lib/clipboard'
+import ErrorBoundary from '../components/ErrorBoundary'
+import { useState, useRef, useEffect } from 'react'
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react'
 import { Download, ImageDown, Copy, Check, AlertCircle, ShieldCheck } from 'lucide-react'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'
@@ -205,11 +207,11 @@ function CopyButton({ text }) {
   const t = useRef(null)
   useEffect(() => () => clearTimeout(t.current), [])
   function handle() {
-    navigator.clipboard.writeText(text).then(() => {
+    copyText(text).then(() => {
       setCopied(true)
       clearTimeout(t.current)
       t.current = setTimeout(() => setCopied(false), 1800)
-    })
+    }).catch(() => {})
   }
   return (
     <button
@@ -372,7 +374,18 @@ export default function QRGenerator() {
                   </p>
                 </div>
               ) : (
-                <>
+                <ErrorBoundary
+                  resetKey={`${qrValue}|${ecLevel}`}
+                  fallback={() => (
+                    <div role="alert" className="flex flex-col items-center gap-2 text-center py-4">
+                      <AlertCircle size={24} strokeWidth={1.5} style={{ color: 'var(--color-error)' }} />
+                      <p className="text-xs font-sans" style={{ color: 'var(--color-error)' }}>
+                        The data is too long for one QR code. Make the text shorter or
+                        use a lower error correction level.
+                      </p>
+                    </div>
+                  )}
+                >
                   {/* SVG for display + SVG download */}
                   <div ref={svgRef}>
                     <QRCodeSVG
@@ -394,7 +407,7 @@ export default function QRGenerator() {
                       level={ecLevel}
                     />
                   </div>
-                </>
+                </ErrorBoundary>
               )}
             </div>
 

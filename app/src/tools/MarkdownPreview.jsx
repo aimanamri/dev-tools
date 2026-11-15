@@ -1,3 +1,4 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useEffect, useRef } from 'react'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
@@ -473,7 +474,7 @@ ${safeInner}
   }
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(source)
+    await copyText(source)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }

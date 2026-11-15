@@ -2,6 +2,7 @@ import { Suspense, useState, useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Toolbar from './Toolbar'
+import ErrorBoundary from '../ErrorBoundary'
 import { useTheme } from '../../hooks/useTheme'
 
 const TOOL_TITLES = {
@@ -33,7 +34,9 @@ export default function AppShell() {
 
   const title = TOOL_TITLES[location.pathname] ?? null
 
+  // Close the mobile drawer when the route changes.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileOpen(false)
   }, [location.pathname])
 
@@ -111,7 +114,9 @@ export default function AppShell() {
               </p>
             }
           >
-            <Outlet context={{ scrollRef }} />
+            <ErrorBoundary resetKey={location.pathname}>
+              <Outlet context={{ scrollRef }} />
+            </ErrorBoundary>
           </Suspense>
         </main>
       </div>

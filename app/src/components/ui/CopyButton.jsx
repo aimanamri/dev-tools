@@ -1,3 +1,4 @@
+import { copyText } from '../../lib/clipboard'
 import { useState, useRef, useEffect } from 'react'
 import { Copy, Check } from 'lucide-react'
 import Button from './Button'
@@ -8,11 +9,11 @@ export default function CopyButton({ text, label = 'Copy' }) {
   useEffect(() => () => clearTimeout(t.current), [])
   function handle() {
     if (!text) return
-    navigator.clipboard.writeText(text).then(() => {
+    copyText(text).then(() => {
       setCopied(true)
       clearTimeout(t.current)
       t.current = setTimeout(() => setCopied(false), 1800)
-    })
+    }).catch(() => {})
   }
   return (
     <Button

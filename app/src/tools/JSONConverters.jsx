@@ -1,110 +1,10 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useMemo } from 'react'
-import yaml from 'js-yaml'
-import Papa from 'papaparse'
-import { js2xml } from 'xml-js'
-import { Copy, Check, AlertCircle, ChevronDown } from 'lucide-react'
+import { toCSV, toYAML, toXML, toPythonDict, toStringify, toMarkdownTable } from '../lib/jsonConvert'
+import { parseJson } from '../lib/json'
+import { Copy, Check, AlertCircle } from 'lucide-react'
 
 // ── Conversion logic ──────────────────────────────────────────────────────────
-
-function flattenObject(obj, prefix = '') {
-  return Object.keys(obj).reduce((acc, key) => {
-    const path = prefix ? `${prefix}.${key}` : key
-    const val = obj[key]
-    if (val !== null && typeof val === 'object' && !Array.isArray(val)) {
-      Object.assign(acc, flattenObject(val, path))
-    } else {
-      acc[path] = Array.isArray(val) ? JSON.stringify(val) : val
-    }
-    return acc
-  }, {})
-}
-
-function toCSV(data) {
-  const rows = Array.isArray(data) ? data : [data]
-  const flat = rows.map(r =>
-    typeof r === 'object' && r !== null ? flattenObject(r) : { value: r }
-  )
-  return Papa.unparse(flat)
-}
-
-function toYAML(data) {
-  return yaml.dump(data, { indent: 2, lineWidth: -1 })
-}
-
-function jsonToXmlNode(data, tagName = 'root') {
-  if (Array.isArray(data)) {
-    return {
-      type: 'element',
-      name: tagName,
-      elements: data.map((item, i) => jsonToXmlNode(item, 'item')),
-    }
-  }
-  if (data !== null && typeof data === 'object') {
-    return {
-      type: 'element',
-      name: tagName,
-      elements: Object.entries(data).map(([k, v]) => jsonToXmlNode(v, k)),
-    }
-  }
-  return {
-    type: 'element',
-    name: tagName,
-    elements: [{ type: 'text', text: String(data ?? '') }],
-  }
-}
-
-function toXML(data) {
-  const doc = {
-    declaration: { attributes: { version: '1.0', encoding: 'UTF-8' } },
-    elements: [jsonToXmlNode(data, 'root')],
-  }
-  return js2xml(doc, { compact: false, spaces: 2 })
-}
-
-function toPythonDict(data, indent = 0) {
-  const pad = '    '.repeat(indent)
-  const inner = '    '.repeat(indent + 1)
-  if (Array.isArray(data)) {
-    if (data.length === 0) return '[]'
-    const items = data.map(v => `${inner}${toPythonDict(v, indent + 1)}`)
-    return `[\n${items.join(',\n')}\n${pad}]`
-  }
-  if (data === null) return 'None'
-  if (typeof data === 'boolean') return data ? 'True' : 'False'
-  if (typeof data === 'number') return String(data)
-  if (typeof data === 'string') {
-    const escaped = data.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
-    return `'${escaped}'`
-  }
-  if (typeof data === 'object') {
-    const entries = Object.entries(data)
-    if (entries.length === 0) return '{}'
-    const items = entries.map(([k, v]) => {
-      const key = `'${k.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
-      return `${inner}${key}: ${toPythonDict(v, indent + 1)}`
-    })
-    return `{\n${items.join(',\n')}\n${pad}}`
-  }
-  return String(data)
-}
-
-function toStringify(data) {
-  return JSON.stringify(JSON.stringify(data))
-}
-
-function toMarkdownTable(data) {
-  const rows = Array.isArray(data) ? data : [data]
-  const flat = rows.map(r =>
-    typeof r === 'object' && r !== null ? flattenObject(r) : { value: r }
-  )
-  if (flat.length === 0) return ''
-  const keys = [...new Set(flat.flatMap(Object.keys))]
-  const escape = v => String(v ?? '').replace(/\|/g, '\\|')
-  const header = `| ${keys.map(escape).join(' | ')} |`
-  const sep = `| ${keys.map(() => '---').join(' | ')} |`
-  const body = flat.map(r => `| ${keys.map(k => escape(r[k] ?? '')).join(' | ')} |`)
-  return [header, sep, ...body].join('\n')
-}
 
 const FORMATS = [
   { id: 'csv',      label: 'CSV',             fn: toCSV },
@@ -210,12 +110,8 @@ export default function JSONConverters() {
 
   const { output, error } = useMemo(() => {
     if (!source.trim()) return { output: '', error: null }
-    let parsed
-    try {
-      parsed = JSON.parse(source)
-    } catch (e) {
-      return { output: '', error: e.message }
-    }
+    const { value: parsed, error: parseError } = parseJson(source)
+    if (parseError) return { output: '', error: parseError }
     const fmt = FORMATS.find(f => f.id === format)
     try {
       return { output: fmt.fn(parsed), error: null }
@@ -226,7 +122,7 @@ export default function JSONConverters() {
 
   const handleCopy = async () => {
     if (!output) return
-    await navigator.clipboard.writeText(output)
+    await copyText(output)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }

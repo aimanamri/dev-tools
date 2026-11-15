@@ -1,3 +1,4 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
@@ -163,11 +164,11 @@ function CopyBtn({ text }) {
   const t = useRef(null)
   useEffect(() => () => clearTimeout(t.current), [])
   function handleCopy() {
-    navigator.clipboard.writeText(text).then(() => {
+    copyText(text).then(() => {
       setCopied(true)
       clearTimeout(t.current)
       t.current = setTimeout(() => setCopied(false), 2000)
-    })
+    }).catch(() => {})
   }
   return (
     <button onClick={handleCopy} title="Copy to clipboard" style={btnStyle(copied)}>

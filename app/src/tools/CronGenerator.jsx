@@ -4,6 +4,7 @@ import { AlertCircle, Zap, RotateCcw } from 'lucide-react'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import CopyButton from '../components/ui/CopyButton'
+import { validateFields } from '../lib/cron'
 
 // ── Cron explanation ──────────────────────────────────────────────────────────
 function explain(expr) {
@@ -12,77 +13,6 @@ function explain(expr) {
   } catch (e) {
     return { text: null, error: String(e).replace(/^Error:\s*/i, '') }
   }
-}
-
-// ── Per-field validation ──────────────────────────────────────────────────────
-const FIELD_META = {
-  minute: { label: 'Minute',        min: 0, max: 59 },
-  hour:   { label: 'Hour',          min: 0, max: 23 },
-  dom:    { label: 'Day of Month',  min: 1, max: 31 },
-  month:  { label: 'Month',         min: 1, max: 12 },
-  dow:    { label: 'Day of Week',   min: 0, max: 6  },
-}
-
-function validateRange(from, to, min, max) {
-  if (isNaN(from)) return `"${from}" is not a valid number`
-  if (isNaN(to))   return `"${to}" is not a valid number`
-  if (from < min || from > max) return `${from} is out of range — must be ${min}–${max}`
-  if (to   < min || to   > max) return `${to} is out of range — must be ${min}–${max}`
-  if (from > to) return `Start value (${from}) must not exceed end value (${to})`
-  return null
-}
-
-function validateToken(token, min, max) {
-  // step: */n  or  n-m/n
-  if (token.includes('/')) {
-    const [rangePart, stepStr, ...extra] = token.split('/')
-    if (extra.length) return `Too many "/" in "${token}"`
-    const step = Number(stepStr)
-    if (!Number.isInteger(step) || step < 1)
-      return `Step "${stepStr}" must be a positive whole number`
-    if (rangePart !== '*') {
-      const [a, b, ...rest] = rangePart.split('-')
-      if (rest.length) return `Invalid range in "${token}"`
-      const err = validateRange(Number(a), Number(b), min, max)
-      if (err) return err
-    }
-    return null
-  }
-  // range: n-m
-  if (token.includes('-')) {
-    const [a, b, ...rest] = token.split('-')
-    if (rest.length) return `Too many "-" in "${token}" — use n-m format`
-    return validateRange(Number(a), Number(b), min, max)
-  }
-  // single value
-  const num = Number(token)
-  if (!Number.isInteger(num) || String(num) !== token)
-    return `"${token}" is not a valid whole number`
-  if (num < min || num > max)
-    return `${num} is out of range — enter a value between ${min} and ${max}`
-  return null
-}
-
-function validateField(value, key) {
-  const { min, max } = FIELD_META[key]
-  if (!value || value === '*') return null
-  const tokens = value.split(',')
-  for (const raw of tokens) {
-    const t = raw.trim()
-    if (!t) return 'Empty value in list — check your commas'
-    const err = validateToken(t, min, max)
-    if (err) return err
-  }
-  return null
-}
-
-function validateFields(fields) {
-  const errors = {}
-  for (const key of Object.keys(FIELD_META)) {
-    const err = validateField(fields[key], key)
-    if (err) errors[key] = err
-  }
-  return errors
 }
 
 // ── Field definitions ─────────────────────────────────────────────────────────

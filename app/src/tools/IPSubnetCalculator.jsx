@@ -1,265 +1,16 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useCallback } from 'react'
 import { Copy, Check, Trash2, Network } from 'lucide-react'
 
-// ─── Pure-JS IPv4 helpers ──────────────────────────────────────────────────
-
-function ipv4ToInt(ip) {
-  const parts = ip.split('.').map(Number)
-  return ((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>> 0
-}
-
-function intToIPv4(n) {
-  return [
-    (n >>> 24) & 0xff,
-    (n >>> 16) & 0xff,
-    (n >>> 8) & 0xff,
-    n & 0xff,
-  ].join('.')
-}
-
-function ipv4ToBinary(ip) {
-  return ip
-    .split('.')
-    .map(o => Number(o).toString(2).padStart(8, '0'))
-    .join('.')
-}
-
-function intToBinary32(n) {
-  return (n >>> 0).toString(2).padStart(32, '0')
-}
-
-function ipv4ToHex(ip) {
-  return '0x' + ip
-    .split('.')
-    .map(o => Number(o).toString(16).padStart(2, '0').toUpperCase())
-    .join('')
-}
-
-function toArpa(ip) {
-  return ip.split('.').reverse().join('.') + '.in-addr.arpa'
-}
-
-function ipv4Class(ip) {
-  const first = Number(ip.split('.')[0])
-  if (first >= 1 && first <= 126) return 'A'
-  if (first === 127) return 'A (Loopback)'
-  if (first >= 128 && first <= 191) return 'B'
-  if (first >= 192 && first <= 223) return 'C'
-  if (first >= 224 && first <= 239) return 'D (Multicast)'
-  return 'E (Reserved)'
-}
-
-function isPrivateIPv4(ip) {
-  const n = ipv4ToInt(ip)
-  const ranges = [
-    [ipv4ToInt('10.0.0.0'), ipv4ToInt('10.255.255.255')],
-    [ipv4ToInt('172.16.0.0'), ipv4ToInt('172.31.255.255')],
-    [ipv4ToInt('192.168.0.0'), ipv4ToInt('192.168.255.255')],
-  ]
-  return ranges.some(([lo, hi]) => n >= lo && n <= hi)
-}
-
-function validateIPv4(ip) {
-  const parts = ip.trim().split('.')
-  if (parts.length !== 4) return false
-  return parts.every(p => {
-    const n = Number(p)
-    return /^\d+$/.test(p) && n >= 0 && n <= 255
-  })
-}
-
-function calcIPv4(ip, prefix) {
-  const cidr = parseInt(prefix, 10)
-  const maskInt = cidr === 0 ? 0 : (0xffffffff << (32 - cidr)) >>> 0
-  const wildcardInt = (~maskInt) >>> 0
-  const ipInt = ipv4ToInt(ip)
-  const networkInt = (ipInt & maskInt) >>> 0
-  const broadcastInt = (networkInt | wildcardInt) >>> 0
-  const firstHostInt = cidr < 31 ? networkInt + 1 : networkInt
-  const lastHostInt = cidr < 31 ? broadcastInt - 1 : broadcastInt
-  const totalHosts = Math.pow(2, 32 - cidr)
-  const usableHosts = cidr >= 31 ? totalHosts : Math.max(0, totalHosts - 2)
-
-  const networkAddr = intToIPv4(networkInt)
-  const mask = intToIPv4(maskInt)
-  const wildcard = intToIPv4(wildcardInt)
-  const broadcast = intToIPv4(broadcastInt)
-  const firstHost = intToIPv4(firstHostInt)
-  const lastHost = intToIPv4(lastHostInt)
-
-  // IPv4-mapped IPv6
-  const hexIP = ip.split('.').map(o => Number(o).toString(16).padStart(2, '0'))
-  const ipv4Mapped = `::ffff:${hexIP.slice(0, 2).join('')}:${hexIP.slice(2, 4).join('')}`
-  const sixToFour = `2002:${hexIP.slice(0, 2).join('')}:${hexIP.slice(2, 4).join('')}::/48`
-
-  // All networks
-  const numNetworks = totalHosts >= 2 ? totalHosts / (cidr < 31 ? Math.pow(2, 32 - cidr) : 1) : 1
-  const networks = []
-  if (cidr <= 24) {
-    const step = Math.pow(2, 32 - cidr)
-    const maxNets = Math.min(256, Math.ceil(Math.pow(2, 32) / step))
-    for (let i = 0; i < maxNets; i++) {
-      const net = (i * step) >>> 0
-      networks.push({
-        network: intToIPv4(net),
-        range: `${intToIPv4(net + 1)} – ${intToIPv4(net + step - 2)}`,
-        broadcast: intToIPv4(net + step - 1),
-      })
-    }
-  }
-
-  return {
-    ip,
-    cidr,
-    networkAddr,
-    mask,
-    wildcard,
-    broadcast,
-    firstHost,
-    lastHost,
-    totalHosts,
-    usableHosts,
-    ipClass: ipv4Class(ip),
-    isPrivate: isPrivateIPv4(ip),
-    binary: {
-      ip: ipv4ToBinary(ip),
-      mask: ipv4ToBinary(mask),
-      network: ipv4ToBinary(networkAddr),
-      broadcast: ipv4ToBinary(broadcast),
-    },
-    hex: ipv4ToHex(ip),
-    intVal: ipInt >>> 0,
-    arpa: toArpa(ip),
-    ipv4Mapped,
-    sixToFour,
-    networks: networks.slice(0, 256),
-  }
-}
-
-// ─── Pure-JS IPv6 helpers ──────────────────────────────────────────────────
-
-function validateIPv6(addr) {
-  // Accepts full or compressed notation
-  try {
-    expandIPv6(addr)
-    return true
-  } catch {
-    return false
-  }
-}
-
-function expandIPv6(addr) {
-  addr = addr.trim().toLowerCase()
-  if (addr.includes('::')) {
-    const halves = addr.split('::')
-    if (halves.length !== 2) throw new Error('invalid')
-    const left = halves[0] ? halves[0].split(':') : []
-    const right = halves[1] ? halves[1].split(':') : []
-    const missing = 8 - left.length - right.length
-    if (missing < 0) throw new Error('invalid')
-    const mid = Array(missing).fill('0000')
-    return [...left, ...mid, ...right].map(g => g.padStart(4, '0'))
-  }
-  const groups = addr.split(':')
-  if (groups.length !== 8) throw new Error('invalid')
-  return groups.map(g => g.padStart(4, '0'))
-}
-
-function compressIPv6(groups) {
-  const full = groups.join(':')
-  // Replace the longest run of zero groups with ::
-  let best = { start: -1, len: 0 }
-  let cur = { start: -1, len: 0 }
-  groups.forEach((g, i) => {
-    if (g === '0000') {
-      if (cur.start === -1) cur = { start: i, len: 1 }
-      else cur.len++
-      if (cur.len > best.len) best = { ...cur }
-    } else {
-      cur = { start: -1, len: 0 }
-    }
-  })
-  if (best.len < 2) return full
-  const before = groups.slice(0, best.start).map(g => g.replace(/^0+/, '') || '0').join(':')
-  const after = groups.slice(best.start + best.len).map(g => g.replace(/^0+/, '') || '0').join(':')
-  return `${before}::${after}`
-}
-
-function ipv6GroupsToBigInt(groups) {
-  return groups.reduce((acc, g) => (acc << 16n) | BigInt(parseInt(g, 16)), 0n)
-}
-
-function bigIntToIPv6Groups(n) {
-  const groups = []
-  for (let i = 0; i < 8; i++) {
-    groups.unshift((n & 0xffffn).toString(16).padStart(4, '0'))
-    n >>= 16n
-  }
-  return groups
-}
-
-function calcIPv6(addr, prefix) {
-  const cidr = parseInt(prefix, 10)
-  const groups = expandIPv6(addr)
-  const ipInt = ipv6GroupsToBigInt(groups)
-
-  const totalBits = 128n
-  const hostBits = BigInt(128 - cidr)
-  const maskInt = cidr === 0 ? 0n : ((1n << totalBits) - 1n) ^ ((1n << hostBits) - 1n)
-  const networkInt = ipInt & maskInt
-  const lastInt = networkInt | ((1n << hostBits) - 1n)
-  const firstHostInt = cidr < 127 ? networkInt + 1n : networkInt
-  const lastHostInt = cidr < 127 ? lastInt - 1n : lastInt
-
-  const networkGroups = bigIntToIPv6Groups(networkInt)
-  const lastGroups = bigIntToIPv6Groups(lastInt)
-  const maskGroups = bigIntToIPv6Groups(maskInt)
-  const firstHostGroups = bigIntToIPv6Groups(firstHostInt)
-  const lastHostGroups = bigIntToIPv6Groups(lastHostInt)
-
-  const compressed = compressIPv6(groups)
-  const networkFull = networkGroups.join(':')
-  const networkCompressed = compressIPv6(networkGroups)
-
-  const totalAddresses = 1n << hostBits
-
-  // Network type detection
-  let networkType = 'Global Unicast'
-  const firstGroup = parseInt(groups[0], 16)
-  if (groups[0] === 'fe80' || (firstGroup & 0xffc0) === 0xfe80) networkType = 'Link-Local'
-  else if (groups[0].startsWith('fc') || groups[0].startsWith('fd')) networkType = 'Unique Local'
-  else if (groups[0] === 'ff00' || groups[0].startsWith('ff')) networkType = 'Multicast'
-  else if (ipInt === 1n) networkType = 'Loopback'
-  else if (ipInt === 0n) networkType = 'Unspecified'
-
-  return {
-    addr,
-    cidr,
-    compressed,
-    expanded: groups.join(':'),
-    networkFull,
-    networkCompressed,
-    networkCidr: `${networkCompressed}/${cidr}`,
-    firstHost: compressIPv6(firstHostGroups),
-    lastHost: compressIPv6(lastHostGroups),
-    last: compressIPv6(lastGroups),
-    mask: compressIPv6(maskGroups),
-    totalAddresses,
-    networkType,
-    groups,
-    networkGroups,
-  }
-}
-
-// ─── Shared Copy button ────────────────────────────────────────────────────
+import { calcIPv4, calcIPv6, validateIPv4, validateIPv6, intToBinary32, ipv4ToInt } from '../lib/subnet'
 
 function CopyBtn({ value }) {
   const [copied, setCopied] = useState(false)
   const copy = () => {
-    navigator.clipboard.writeText(value).then(() => {
+    copyText(value).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
-    })
+    }).catch(() => {})
   }
   return (
     <button
@@ -443,10 +194,6 @@ function IPv6Result({ result }) {
   const { addr, cidr, compressed, expanded, networkFull, networkCompressed, networkCidr,
     firstHost, lastHost, last, mask, totalAddresses, networkType } = result
 
-  const totalStr = totalAddresses > 10n ** 18n
-    ? totalAddresses.toLocaleString()
-    : totalAddresses.toLocaleString()
-
   return (
     <div className="space-y-4">
       {/* Summary */}
@@ -540,38 +287,56 @@ export default function IPSubnetCalculator() {
   const [v6Error, setV6Error] = useState('')
   const [v6Result, setV6Result] = useState(null)
 
+  // Reads "address" or "address/prefix". A prefix in the address field wins.
+  function splitCidr(text, fallbackPrefix) {
+    const [addr, ...rest] = text.trim().split('/')
+    const prefixText = rest.length ? rest.join('/').trim() : String(fallbackPrefix).trim()
+    const prefix = /^\d{1,3}$/.test(prefixText) ? Number(prefixText) : NaN
+    return { addr: addr.trim(), prefix, fromAddr: rest.length > 0 }
+  }
+
   const calcV4 = useCallback(() => {
-    const ip = v4IP.trim()
-    const prefix = parseInt(v4Prefix, 10)
+    const { addr: ip, prefix, fromAddr } = splitCidr(v4IP, v4Prefix)
+    if (!ip) {
+      setV4Error('Enter an IPv4 address. Example: 192.168.1.0')
+      setV4Result(null)
+      return
+    }
     if (!validateIPv4(ip)) {
-      setV4Error('Invalid IPv4 address. Expected format: 0–255.0–255.0–255.0–255')
+      setV4Error('The IPv4 address is not valid. Use four numbers from 0 to 255 with dots between them.')
       setV4Result(null)
       return
     }
     if (isNaN(prefix) || prefix < 0 || prefix > 32) {
-      setV4Error('Prefix length must be between 0 and 32.')
+      setV4Error('The prefix length must be a whole number from 0 to 32.')
       setV4Result(null)
       return
     }
+    if (fromAddr) { setV4IP(ip); setV4Prefix(String(prefix)) }
     setV4Error('')
-    setV4Result(calcIPv4(ip, v4Prefix))
+    setV4Result(calcIPv4(ip, prefix))
   }, [v4IP, v4Prefix])
 
   const calcV6 = useCallback(() => {
-    const addr = v6Addr.trim()
-    const prefix = parseInt(v6Prefix, 10)
+    const { addr, prefix, fromAddr } = splitCidr(v6Addr, v6Prefix)
+    if (!addr) {
+      setV6Error('Enter an IPv6 address. Example: 2001:db8::1')
+      setV6Result(null)
+      return
+    }
     if (!validateIPv6(addr)) {
-      setV6Error('Invalid IPv6 address. Use full or compressed notation (e.g. 2001:db8::1).')
+      setV6Error('The IPv6 address is not valid. Use full or short notation. Example: 2001:db8::1')
       setV6Result(null)
       return
     }
     if (isNaN(prefix) || prefix < 0 || prefix > 128) {
-      setV6Error('Prefix length must be between 0 and 128.')
+      setV6Error('The prefix length must be a whole number from 0 to 128.')
       setV6Result(null)
       return
     }
+    if (fromAddr) { setV6Addr(addr); setV6Prefix(String(prefix)) }
     setV6Error('')
-    setV6Result(calcIPv6(addr, v6Prefix))
+    setV6Result(calcIPv6(addr, prefix))
   }, [v6Addr, v6Prefix])
 
   const clearV4 = () => { setV4IP(''); setV4Prefix('24'); setV4Error(''); setV4Result(null) }

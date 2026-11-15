@@ -242,12 +242,12 @@ function TreePreview() {
   )
   return (
     <div>
-      <Row pad={0} label="response" />
-      <Row pad={18} label="status" val="200" c={COLORS.primary} />
-      <Row pad={18} label="items" />
-      <Row pad={36} label="0" val={'"alpha"'} c={COLORS.success} />
-      <Row pad={36} label="1" val={'"beta"'} c={COLORS.success} />
-      <Row pad={18} label="ok" val="true" c={COLORS.primary} />
+      {Row({ pad: 0, label: 'response' })}
+      {Row({ pad: 18, label: 'status', val: '200', c: COLORS.primary })}
+      {Row({ pad: 18, label: 'items' })}
+      {Row({ pad: 36, label: '0', val: '"alpha"', c: COLORS.success })}
+      {Row({ pad: 36, label: '1', val: '"beta"', c: COLORS.success })}
+      {Row({ pad: 18, label: 'ok', val: 'true', c: COLORS.primary })}
     </div>
   )
 }

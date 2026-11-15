@@ -1,35 +1,16 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { copyText } from '../lib/clipboard'
+import { useState, useRef, useEffect } from 'react'
 import { Copy, Check, Clock, Info, BookOpen } from 'lucide-react'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'
 import Button from '../components/ui/Button'
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
+import { toEpochMs, fromEpochMs, fieldsToEpochMs } from '../lib/timestamp'
+
 const PAD = (n, w = 2) => String(n).padStart(w, '0')
 const DAYS_SHORT  = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const MONTHS_FULL  = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-
-function toEpochMs(value, unit) {
-  const n = Number(value)
-  if (isNaN(n)) return null
-  switch (unit) {
-    case 'sec':  return n * 1000
-    case 'ms':   return n
-    case 'µs':   return Math.floor(n / 1000)
-    case 'ns':   return Math.floor(n / 1_000_000)
-    default:     return null
-  }
-}
-
-function fromEpochMs(ms, unit) {
-  switch (unit) {
-    case 'sec':  return Math.floor(ms / 1000)
-    case 'ms':   return ms
-    case 'µs':   return ms * 1000
-    case 'ns':   return ms * 1_000_000
-    default:     return ms
-  }
-}
 
 function rfc2822(d) {
   return `${DAYS_SHORT[d.getUTCDay()]}, ${PAD(d.getUTCDate())} ${MONTHS_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()} ${PAD(d.getUTCHours())}:${PAD(d.getUTCMinutes())}:${PAD(d.getUTCSeconds())} +0000`
@@ -125,11 +106,11 @@ function CopyButton({ text }) {
   useEffect(() => () => clearTimeout(t.current), [])
 
   function handle() {
-    navigator.clipboard.writeText(text).then(() => {
+    copyText(text).then(() => {
       setCopied(true)
       clearTimeout(t.current)
       t.current = setTimeout(() => setCopied(false), 1800)
-    })
+    }).catch(() => {})
   }
 
   return (
@@ -175,16 +156,6 @@ function OutputRow({ label, value }) {
 }
 
 // ── Section header label ──────────────────────────────────────────────────────
-function SectionLabel({ children }) {
-  return (
-    <p
-      className="text-xs font-mono font-medium uppercase mb-2"
-      style={{ color: 'var(--color-ink-faint)', letterSpacing: '0.06em' }}
-    >
-      {children}
-    </p>
-  )
-}
 
 // ── Reference table data ──────────────────────────────────────────────────────
 const REF_UNITS = [
@@ -198,6 +169,32 @@ const REF_UNITS = [
   { unit: '10 Years',    seconds: 315_576_000,     abbr: '' },
   { unit: '100 Years',   seconds: 3_155_760_000,   abbr: '' },
 ]
+
+function NumField({ label, value, min, max, onChange }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-mono" style={{ color: 'var(--color-ink-muted)' }}>
+        {label}
+      </label>
+      <input
+        type="number"
+        value={Number.isFinite(value) ? value : ''}
+        min={min}
+        max={max}
+        onChange={e => onChange(e.target.value)}
+        className="font-mono text-sm rounded-xs border px-2 py-1.5 w-full"
+        style={{
+          backgroundColor: 'var(--color-input-bg)',
+          color: 'var(--color-ink)',
+          borderColor: 'var(--color-border-strong)',
+          outline: 'none',
+        }}
+        onFocus={e => (e.target.style.borderColor = 'var(--color-primary)')}
+        onBlur={e => (e.target.style.borderColor = 'var(--color-border-strong)')}
+      />
+    </div>
+  )
+}
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function TimestampConverter() {
@@ -249,12 +246,9 @@ export default function TimestampConverter() {
   }
 
   function syncFromDt(next) {
-    const d = dtTzMode === 'utc'
-      ? new Date(Date.UTC(next.year, next.month - 1, next.day, next.hour, next.min, next.sec))
-      : new Date(next.year, next.month - 1, next.day, next.hour, next.min, next.sec)
-    const ms = d.getTime()
-    setEpochMs(isNaN(ms) ? null : ms)
-    if (!isNaN(ms)) {
+    const ms = fieldsToEpochMs(next, dtTzMode === 'utc')
+    setEpochMs(ms)
+    if (ms !== null) {
       setTsInput(String(fromEpochMs(ms, tsUnit)))
     }
   }
@@ -274,7 +268,7 @@ export default function TimestampConverter() {
   }
 
   function handleDtChange(field, value) {
-    const next = { ...dt, [field]: Number(value) }
+    const next = { ...dt, [field]: value === '' ? NaN : Number(value) }
     setDt(next)
     syncFromDt(next)
   }
@@ -360,32 +354,6 @@ export default function TimestampConverter() {
   }
 
   // ── Number field ─────────────────────────────────────────────────────────────
-  function NumField({ label, field, min, max }) {
-    return (
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-mono" style={{ color: 'var(--color-ink-muted)' }}>
-          {label}
-        </label>
-        <input
-          type="number"
-          value={dt[field]}
-          min={min}
-          max={max}
-          onChange={e => handleDtChange(field, e.target.value)}
-          className="font-mono text-sm rounded-xs border px-2 py-1.5 w-full"
-          style={{
-            backgroundColor: 'var(--color-input-bg)',
-            color: 'var(--color-ink)',
-            borderColor: 'var(--color-border-strong)',
-            outline: 'none',
-          }}
-          onFocus={e => (e.target.style.borderColor = 'var(--color-primary)')}
-          onBlur={e => (e.target.style.borderColor = 'var(--color-border-strong)')}
-        />
-      </div>
-    )
-  }
-
   return (
     <div className="max-w-3xl mx-auto flex flex-col gap-4">
 
@@ -502,12 +470,12 @@ export default function TimestampConverter() {
                 : `All fields interpreted as ${localTzName}.`}
             </p>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-              <NumField label="Year"   field="year"  min={1970} max={9999} />
-              <NumField label="Month"  field="month" min={1}    max={12} />
-              <NumField label="Day"    field="day"   min={1}    max={31} />
-              <NumField label="Hour"   field="hour"  min={0}    max={23} />
-              <NumField label="Minute" field="min"   min={0}    max={59} />
-              <NumField label="Second" field="sec"   min={0}    max={59} />
+              <NumField label="Year" value={dt.year} min={0} max={9999} onChange={v => handleDtChange('year', v)} />
+              <NumField label="Month" value={dt.month} min={1} max={12} onChange={v => handleDtChange('month', v)} />
+              <NumField label="Day" value={dt.day} min={1} max={31} onChange={v => handleDtChange('day', v)} />
+              <NumField label="Hour" value={dt.hour} min={0} max={23} onChange={v => handleDtChange('hour', v)} />
+              <NumField label="Minute" value={dt.min} min={0} max={59} onChange={v => handleDtChange('min', v)} />
+              <NumField label="Second" value={dt.sec} min={0} max={59} onChange={v => handleDtChange('sec', v)} />
             </div>
           </div>
         )}

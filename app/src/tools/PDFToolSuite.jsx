@@ -19,6 +19,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
+const MAX_PDF_BYTES = 200 * 1024 * 1024
+
 function fmtBytes(b) {
   if (!b) return '0 B'
   if (b < 1024) return `${b} B`
@@ -482,7 +484,10 @@ export default function PDFToolSuite() {
     setIsDragOver(false)
     const file = e.dataTransfer?.files[0]
     if (!file || file.type !== 'application/pdf') {
-      setStatus({ type: 'error', msg: 'Please drop a PDF file.' }); return
+      setStatus({ type: 'error', msg: 'Drop a PDF file. Other file types are not accepted.' }); return
+    }
+    if (file.size > MAX_PDF_BYTES) {
+      setStatus({ type: 'error', msg: 'The file is larger than the 200 MB limit.' }); return
     }
     loadPdfBytes(new Uint8Array(await file.arrayBuffer()), file.name)
   }, [loadPdfBytes])

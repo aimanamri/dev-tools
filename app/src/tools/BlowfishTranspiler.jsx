@@ -1,3 +1,4 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import {
   AlertCircle, Copy, Check, RotateCcw, ArrowLeftRight,
@@ -584,11 +585,11 @@ export default function BlowfishTranspiler() {
 
   const handleCopyOutput = useCallback(() => {
     if (!output) return
-    navigator.clipboard.writeText(output).then(() => {
+    copyText(output).then(() => {
       setCopiedOutput(true)
       clearTimeout(copyOutputTimerRef.current)
       copyOutputTimerRef.current = setTimeout(() => setCopiedOutput(false), 2000)
-    })
+    }).catch(() => {})
   }, [output])
 
   const handleConvert = useCallback(() => {

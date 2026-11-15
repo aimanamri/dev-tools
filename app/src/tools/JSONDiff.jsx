@@ -1,4 +1,6 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useMemo } from 'react'
+import { parseJson } from '../lib/json'
 import { diffLines } from 'diff'
 import { AlertCircle, GitCompare, Copy, Check } from 'lucide-react'
 
@@ -165,7 +167,7 @@ function sortKeys(data) {
 }
 
 function normalise(src) {
-  const parsed = JSON.parse(src)
+  const parsed = parseJson(src).value
   return JSON.stringify(sortKeys(parsed), null, 2)
 }
 
@@ -210,14 +212,12 @@ export default function JSONDiff() {
 
   const origError = useMemo(() => {
     if (!original.trim()) return null
-    try { JSON.parse(original); return null }
-    catch (e) { return e.message }
+    return parseJson(original).error
   }, [original])
 
   const modError = useMemo(() => {
     if (!modified.trim()) return null
-    try { JSON.parse(modified); return null }
-    catch (e) { return e.message }
+    return parseJson(modified).error
   }, [modified])
 
   const diff = useMemo(() => {
@@ -250,7 +250,7 @@ export default function JSONDiff() {
       const prefix = l.type === 'add' ? '+ ' : l.type === 'del' ? '- ' : '  '
       return prefix + l.text
     }).join('\n')
-    await navigator.clipboard.writeText(text)
+    await copyText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }

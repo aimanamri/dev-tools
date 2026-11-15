@@ -1,6 +1,6 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef } from 'react'
 import DOMPurify from 'dompurify'
-import { Upload, Download, Trash2, AlertCircle, FileImage, ShieldCheck } from 'lucide-react'
+import { Download, Trash2, AlertCircle, FileImage, ShieldCheck } from 'lucide-react'
 import Button from '../components/ui/Button'
 import CopyButton from '../components/ui/CopyButton'
 import Card, { CardHeader, CardTitle } from '../components/ui/Card'

@@ -1,3 +1,4 @@
+import { copyText } from '../lib/clipboard'
 import { useState, useCallback } from 'react'
 import { Copy, Check, RotateCcw, ArrowLeftRight } from 'lucide-react'
 
@@ -48,10 +49,10 @@ function CopyBtn({ value, disabled }) {
   const [copied, setCopied] = useState(false)
   const copy = () => {
     if (!value || disabled) return
-    navigator.clipboard.writeText(value).then(() => {
+    copyText(value).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
-    })
+    }).catch(() => {})
   }
   return (
     <button

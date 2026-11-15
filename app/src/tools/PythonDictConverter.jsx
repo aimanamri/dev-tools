@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef } from 'react'
+import { pythonToJson } from '../lib/pythonLiteral'
 import {
   ShieldCheck, AlertCircle, CheckCircle2,
   Trash2, ClipboardPaste,
@@ -57,112 +58,6 @@ html.dark .pdc-pre .hljs-meta         { color: #89ddff; }
   resize: none;
 }
 `
-
-// ── Parser ────────────────────────────────────────────────────────────────────
-// Walks char-by-char to handle strings separately from code, so keyword
-// replacements never fire inside string values.
-function parsePythonDict(src) {
-  let out = ''
-  let i = 0
-  const n = src.length
-
-  while (i < n) {
-    const ch = src[i]
-
-    // Triple-quoted strings: '''...''' or """..."""
-    const tripleQ =
-      (ch === "'" && src.slice(i, i + 3) === "'''") ||
-      (ch === '"' && src.slice(i, i + 3) === '"""')
-      ? src.slice(i, i + 3) : null
-
-    if (tripleQ) {
-      out += '"'
-      i += 3
-      while (i < n && src.slice(i, i + 3) !== tripleQ) {
-        if (src[i] === '\\' && i + 1 < n) {
-          out += src[i]; out += src[i + 1]; i += 2
-        } else if (src[i] === '"') {
-          out += '\\"'; i++
-        } else if (src[i] === '\n') {
-          out += '\\n'; i++
-        } else if (src[i] === '\r') {
-          i++
-        } else {
-          out += src[i++]
-        }
-      }
-      out += '"'
-      i += 3
-      continue
-    }
-
-    // Single-quoted string: '...'
-    if (ch === "'") {
-      out += '"'
-      i++
-      while (i < n && src[i] !== "'") {
-        if (src[i] === '\\' && i + 1 < n) {
-          const nx = src[i + 1]
-          if (nx === "'") { out += "'"; i += 2 }             // \' → ' (no escape needed in JSON)
-          else if (nx === '"') { out += '\\"'; i += 2 }      // \" → keep escaped
-          else { out += src[i]; out += src[i + 1]; i += 2 }
-        } else if (src[i] === '"') {
-          out += '\\"'; i++    // bare " inside single-quoted → escape it
-        } else if (src[i] === '\n') {
-          out += '\\n'; i++
-        } else {
-          out += src[i++]
-        }
-      }
-      out += '"'
-      i++ // closing '
-      continue
-    }
-
-    // Double-quoted string: "..."
-    if (ch === '"') {
-      out += '"'
-      i++
-      while (i < n && src[i] !== '"') {
-        if (src[i] === '\\' && i + 1 < n) {
-          out += src[i]; out += src[i + 1]; i += 2
-        } else {
-          out += src[i++]
-        }
-      }
-      out += '"'
-      i++ // closing "
-      continue
-    }
-
-    // Python comment: strip to end of line
-    if (ch === '#') {
-      while (i < n && src[i] !== '\n') i++
-      continue
-    }
-
-    // All other characters — collect a run, then apply substitutions
-    const start = i
-    while (i < n && src[i] !== "'" && src[i] !== '"' && src[i] !== '#') i++
-    let chunk = src.slice(start, i)
-
-    // Boolean / None literals at word boundaries
-    chunk = chunk.replace(/\bTrue\b/g, 'true')
-    chunk = chunk.replace(/\bFalse\b/g, 'false')
-    chunk = chunk.replace(/\bNone\b/g, 'null')
-
-    // Tuples → JSON arrays (safe in a pure dict literal context)
-    chunk = chunk.replace(/\(/g, '[').replace(/\)/g, ']')
-
-    // Remove trailing commas before } or ]
-    chunk = chunk.replace(/,(\s*[}\]])/g, '$1')
-
-    out += chunk
-  }
-
-  const parsed = JSON.parse(out)
-  return JSON.stringify(parsed, null, 2)
-}
 
 // ── Panel header ──────────────────────────────────────────────────────────────
 function PanelHeader({ label, badge, actions }) {
@@ -419,7 +314,7 @@ export default function PythonDictConverter() {
   const { output, error } = useMemo(() => {
     if (!input.trim()) return { output: '', error: null }
     try {
-      return { output: parsePythonDict(input), error: null }
+      return { output: pythonToJson(input), error: null }
     } catch (e) {
       return { output: '', error: e.message }
     }
