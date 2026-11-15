@@ -116,7 +116,7 @@ export default function JSONConverters() {
     try {
       return { output: fmt.fn(parsed), error: null }
     } catch (e) {
-      return { output: '', error: `Conversion error: ${e.message}` }
+      return { output: '', error: `The conversion failed: ${e.message}` }
     }
   }, [source, format])
 
@@ -137,7 +137,7 @@ export default function JSONConverters() {
           JSON Converters
         </h1>
         <p style={{ fontSize: '0.875rem', color: 'var(--color-ink-muted)', margin: '0.25rem 0 0', fontFamily: 'var(--font-sans)' }}>
-          Paste valid JSON on the left — select an output format on the right.
+          Paste JSON on the left. Select an output format on the right.
         </p>
       </div>
 
@@ -155,7 +155,7 @@ export default function JSONConverters() {
           <span>{FORMATS.find(f => f.id === format)?.label ?? 'Output'}</span>
           <button className="jsc-copy-btn" data-ok={String(copied)} onClick={handleCopy} disabled={!output}>
             {copied ? <Check size={11} /> : <Copy size={11} />}
-            {copied ? 'Copied!' : 'Copy'}
+            {copied ? 'Copied' : 'Copy'}
           </button>
         </div>
 
@@ -195,7 +195,7 @@ export default function JSONConverters() {
             value={output}
             readOnly
             spellCheck={false}
-            placeholder="Output appears here…"
+            placeholder="The output shows here."
           />
         </div>
       </div>

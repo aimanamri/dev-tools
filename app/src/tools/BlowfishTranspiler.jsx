@@ -619,7 +619,7 @@ export default function BlowfishTranspiler() {
   return (
     <div style={{ fontFamily: 'var(--font-sans)' }}>
 
-      {/* Scoped styles — hljs token colors + layout */}
+      {/* Scoped styles: hljs token colors + layout */}
       <style>{`
         .blowfish-pre {
           margin: 0;
@@ -637,7 +637,7 @@ export default function BlowfishTranspiler() {
         }
         .blowfish-pre code { font-family: inherit; }
 
-        /* YAML / INI (TOML) tokens — light */
+        /* YAML / INI (TOML) tokens: light */
         .blowfish-pre .hljs-attr     { color: oklch(0.440 0.140 215); }
         .blowfish-pre .hljs-string   { color: oklch(0.430 0.140 145); }
         .blowfish-pre .hljs-number   { color: oklch(0.520 0.175 65); }
@@ -891,7 +891,7 @@ export default function BlowfishTranspiler() {
         </h1>
         <p className="text-sm" style={{ color: 'var(--color-ink-muted)', fontFamily: 'var(--font-sans)' }}>
           Bi-directional YAML ↔ TOML conversion for Hugo Blowfish theme config files.
-          Paste or select a template — format is detected automatically.
+          Paste a configuration file or select a template. The tool detects the format.
         </p>
       </div>
 
@@ -1049,7 +1049,7 @@ export default function BlowfishTranspiler() {
             value={input}
             onChange={handleInputChange}
             spellCheck={false}
-            placeholder={`Paste ${inputLabel} here — format is auto-detected`}
+            placeholder={`Paste ${inputLabel} here. The tool detects the format.`}
           />
         </div>
 
@@ -1132,7 +1132,7 @@ export default function BlowfishTranspiler() {
             className="text-xs mt-1"
             style={{ color: 'var(--color-ink-muted)', fontFamily: 'var(--font-sans)', margin: '0.25rem 0 0' }}
           >
-            Hugo's modular config system — each file controls a distinct aspect of your site.
+            Hugo divides the configuration into files. Each file controls one part of your site.
           </p>
         </div>
 
@@ -1153,7 +1153,7 @@ export default function BlowfishTranspiler() {
                 style={{ color: 'var(--color-ink-muted)', fontFamily: 'var(--font-sans)', lineHeight: 1.6, margin: 0 }}
               >
                 When using <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>config/_default/</code>,
-                make sure a root <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>hugo.toml</code> exists — create one if it doesn't.
+                make sure a root <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>hugo.toml</code> exists. If it does not, create one.
                 If it already exists, update it to point to the correct <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>theme</code> and{' '}
                 <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>baseURL</code>, as Hugo will read the root file first and may shadow your <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>_default/</code> directory.
               </p>
@@ -1284,7 +1284,7 @@ export default function BlowfishTranspiler() {
                       <td><span className="file-name">module.toml</span></td>
                       <td style={{ color: 'var(--color-ink-muted)', fontSize: '0.75rem' }}>
                         <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>[[imports]]</code>
-                        {' '}— declares Blowfish as a Hugo module dependency
+                        {' '}declares Blowfish as a Hugo module dependency
                       </td>
                     </tr>
                   </tbody>
@@ -1319,9 +1319,9 @@ export default function BlowfishTranspiler() {
               className="text-xs mt-2"
               style={{ color: 'var(--color-ink-faint)', fontFamily: 'var(--font-sans)', lineHeight: 1.5, margin: '0.5rem 0 0' }}
             >
-              Set in <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>params.toml</code> — e.g.{' '}
+              Set in <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>params.toml</code>. Example:{' '}
               <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>colorScheme = "ocean"</code>.
-              Pair with <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>defaultAppearance = "dark"</code> or{' '}
+              Use it with <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>defaultAppearance = "dark"</code> or{' '}
               <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem' }}>"light"</code>.
             </p>
           </div>

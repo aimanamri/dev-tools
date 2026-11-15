@@ -195,7 +195,7 @@ export default function PasswordGenerator() {
               className="flex-1 text-sm font-sans italic"
               style={{ color: 'var(--color-ink-faint)' }}
             >
-              Select at least one character type
+              Select one character type or more.
             </span>
           ) : (
             <span
@@ -228,8 +228,8 @@ export default function PasswordGenerator() {
               }}
               onMouseEnter={e => { if (!copied && !noPool) e.currentTarget.style.backgroundColor = 'var(--color-surface)' }}
               onMouseLeave={e => { if (!copied) e.currentTarget.style.backgroundColor = 'transparent' }}
-              title={copied ? 'Copied!' : 'Copy to clipboard'}
-              aria-label={copied ? 'Copied!' : 'Copy to clipboard'}
+              title={copied ? 'Copied' : 'Copy to clipboard'}
+              aria-label={copied ? 'Copied' : 'Copy to clipboard'}
             >
               {copied ? <Check size={15} strokeWidth={2} /> : <Copy size={15} strokeWidth={1.5} />}
             </button>
@@ -249,7 +249,7 @@ export default function PasswordGenerator() {
               </span>
             </div>
             <span className="text-xs font-mono" style={{ color: 'var(--color-ink-muted)' }}>
-              {noPool ? '—' : `~${crack} to crack`}
+              {noPool ? '-' : `About ${crack} to break`}
             </span>
           </div>
 
@@ -272,7 +272,7 @@ export default function PasswordGenerator() {
               Pool size: {pool.length} chars
             </span>
             <span className="text-2xs font-mono" style={{ color: 'var(--color-ink-faint)' }}>
-              {noPool ? '—' : `${Math.round(entropy)} bits of entropy`}
+              {noPool ? '-' : `${Math.round(entropy)} bits of entropy`}
             </span>
           </div>
         </div>
@@ -358,7 +358,7 @@ export default function PasswordGenerator() {
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8, background: 'color-mix(in oklch, var(--color-success) 10%, var(--color-surface))', border: '1px solid var(--color-success)' }}>
         <ShieldCheck size={16} strokeWidth={1.5} style={{ color: 'var(--color-success)', flexShrink: 0, marginTop: 1 }} />
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)', margin: 0, lineHeight: 1.55 }}>
-          Passwords are generated entirely in your browser using <code style={{ fontFamily: 'var(--font-mono)' }}>crypto.getRandomValues()</code>. Nothing is sent to any server.
+          Your browser makes each password with <code style={{ fontFamily: 'var(--font-mono)' }}>crypto.getRandomValues()</code>. The site sends no data to a server.
         </p>
       </div>
 

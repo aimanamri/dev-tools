@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
+import GitHubIcon from '../icons/GitHubIcon'
+import { REPO_URL } from './SiteFooter'
 import { TOOLS } from '../../tools/registry'
 
-// Strong ease-out — gives instant-feeling response vs the weak built-in
+// Strong ease-out: gives instant-feeling response vs the weak built-in
 const EASE = 'cubic-bezier(0.23, 1, 0.32, 1)'
 
 function NavItem({ path, label, icon: Icon, collapsed }) {
@@ -26,7 +28,7 @@ function NavItem({ path, label, icon: Icon, collapsed }) {
         borderRadius: 4,
         padding: '9px 12px',
         overflow: 'hidden',
-        // Left border always present — only color changes, avoids layout shift
+        // Left border always present: only color changes, avoids layout shift
         borderLeft: `2px solid ${isActive ? 'var(--color-primary)' : 'transparent'}`,
         backgroundColor: isActive || hovered
           ? 'var(--color-sidebar-surface)'
@@ -34,7 +36,7 @@ function NavItem({ path, label, icon: Icon, collapsed }) {
         color: isActive
           ? 'var(--color-ink-on-sidebar)'
           : 'var(--color-ink-sidebar-muted)',
-        // Press feedback — every clickable element must confirm it heard the user
+        // Press feedback: every clickable element must confirm it heard the user
         transform: pressed ? 'scale(0.97)' : 'scale(1)',
         transformOrigin: 'center',
         transition: [
@@ -90,9 +92,11 @@ function NavItem({ path, label, icon: Icon, collapsed }) {
   )
 }
 
-export default function Sidebar({ collapsed }) {
+export default function Sidebar({ collapsed, hidden = false }) {
   return (
     <aside
+      aria-hidden={hidden || undefined}
+      inert={hidden || undefined}
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -153,6 +157,7 @@ export default function Sidebar({ collapsed }) {
 
       {/* Navigation */}
       <nav
+        aria-label="Tools"
         style={{
           flex: 1,
           overflowY: 'auto',
@@ -189,19 +194,39 @@ export default function Sidebar({ collapsed }) {
           overflow: 'hidden',
         }}
       >
-        <p
+        <a
+          href={REPO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Source code on GitHub"
+          className="sidebar-repo-link"
           style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            gap: 8,
             fontFamily: 'var(--font-mono)',
             fontSize: '0.6875rem',
             color: 'var(--color-ink-sidebar-muted)',
             whiteSpace: 'nowrap',
-            margin: 0,
-            opacity: collapsed ? 0 : 1,
-            transition: `opacity 100ms ${EASE}`,
+            textDecoration: 'none',
+            borderRadius: 4,
+            padding: '4px 0',
           }}
         >
-          v1.1.0
-        </p>
+          <GitHubIcon size={14} style={{ flexShrink: 0 }} />
+          <span
+            style={{
+              opacity: collapsed ? 0 : 1,
+              maxWidth: collapsed ? 0 : 200,
+              overflow: 'hidden',
+              transition: `opacity 100ms ${EASE}`,
+            }}
+          >
+            v{__APP_VERSION__} on GitHub
+          </span>
+          <span className="sr-only">(opens in a new tab)</span>
+        </a>
       </div>
     </aside>
   )

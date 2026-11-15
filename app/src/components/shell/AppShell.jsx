@@ -3,26 +3,14 @@ import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Toolbar from './Toolbar'
 import ErrorBoundary from '../ErrorBoundary'
+import SiteFooter from './SiteFooter'
 import { useTheme } from '../../hooks/useTheme'
+import { TOOLS } from '../../tools/registry'
 
-const TOOL_TITLES = {
-  '/password':        'Password Generator',
-  '/timestamp':       'Timestamp Converter',
-  '/json':            'JSON Formatter & Validator',
-  '/base64':          'Base64 Converter',
-  '/cron':            'Cron Expression Generator',
-  '/qr':              'QR Code Generator',
-  '/svg':             'SVG Converter',
-  '/markdown':        'Markdown Live Preview',
-  '/json-convert':    'JSON Data Converters',
-  '/json-tree':       'JSON Tree Viewer',
-  '/json-diff':       'JSON Diff',
-  '/timezone':        'Timezone Converter',
-  '/pydict':          'Python → JSON',
-  '/blowfish':        'Blowfish Config Transpiler',
-  '/blowfish-article':'Hugo Article Generator',
-  '/subnet':          'IP Subnet Calculator',
-  '/ip-convert':      'IP Conversion Tool',
+// Page titles come from the tool registry. Add other pages here.
+const PAGE_TITLES = {
+  ...Object.fromEntries(TOOLS.map(t => [t.path, t.label])),
+  '/disclaimer': 'Disclaimer',
 }
 
 export default function AppShell() {
@@ -32,7 +20,7 @@ export default function AppShell() {
   const { isDark, toggle: toggleTheme } = useTheme()
   const scrollRef = useRef(null)
 
-  const title = TOOL_TITLES[location.pathname] ?? null
+  const title = PAGE_TITLES[location.pathname] ?? null
 
   // Close the mobile drawer when the route changes.
   useEffect(() => {
@@ -45,10 +33,13 @@ export default function AppShell() {
   return (
     <div
       id="app-root"
+      onKeyDown={e => { if (e.key === 'Escape' && mobileOpen) setMobileOpen(false) }}
       className="flex h-screen w-screen overflow-hidden"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
-      {/* Mobile overlay — always mounted, fades in/out to avoid pop */}
+      <a href="#main-content" className="skip-link">Skip to the main content</a>
+
+      {/* Mobile overlay: always mounted, fades in/out to avoid pop */}
       <div
         className="fixed inset-0 z-modal-backdrop md:hidden"
         style={{
@@ -61,19 +52,19 @@ export default function AppShell() {
         onClick={() => setMobileOpen(false)}
       />
 
-      {/* Sidebar — desktop, width animates with strong ease-out */}
+      {/* Sidebar: desktop, width animates with strong ease-out */}
       <div
         className="flex-shrink-0 h-full hidden md:block"
         style={{
           width: sidebarWidth,
-          // Specify exact property — never transition: all
+          // Specify exact property: never transition: all
           transition: 'width 220ms cubic-bezier(0.23, 1, 0.32, 1)',
         }}
       >
         <Sidebar collapsed={collapsed} />
       </div>
 
-      {/* Sidebar — mobile drawer with iOS pull-from-edge easing */}
+      {/* Sidebar: mobile drawer with iOS pull-from-edge easing */}
       <div
         className="fixed left-0 top-0 h-full z-modal md:hidden"
         style={{
@@ -83,7 +74,7 @@ export default function AppShell() {
           transition: 'transform 280ms cubic-bezier(0.32, 0.72, 0, 1)',
         }}
       >
-        <Sidebar collapsed={false} />
+        <Sidebar collapsed={false} hidden={!mobileOpen} />
       </div>
 
       {/* Main content */}
@@ -103,6 +94,8 @@ export default function AppShell() {
         />
 
         <main
+          id="main-content"
+          tabIndex={-1}
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-6"
           style={{ backgroundColor: 'transparent' }}
@@ -118,6 +111,7 @@ export default function AppShell() {
               <Outlet context={{ scrollRef }} />
             </ErrorBoundary>
           </Suspense>
+          <SiteFooter />
         </main>
       </div>
     </div>

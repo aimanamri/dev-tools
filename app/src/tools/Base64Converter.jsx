@@ -13,7 +13,7 @@ function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload  = e => resolve(e.target.result.split(',')[1]) // strip data-URL prefix
-    reader.onerror = () => reject(new Error('File read failed'))
+    reader.onerror = () => reject(new Error('The browser could not read the file.'))
     reader.readAsDataURL(file)
   })
 }
@@ -218,7 +218,7 @@ function TextTab({ mode }) {
           <textarea
             value={output}
             readOnly
-            placeholder="Output appears here in real time."
+            placeholder="The output shows here as you type."
             spellCheck={false}
             style={{
               ...taStyle,
@@ -257,7 +257,7 @@ function FileTab({ mode }) {
   function handleFile(f) {
     if (!f) return
     if (f.size > MAX_FILE_BYTES) {
-      setError(`File too large: ${fmtSize(f.size)}. Maximum is 10 MB.`)
+      setError(`The file is too large (${fmtSize(f.size)}). The maximum is 10 MB.`)
       return
     }
     setFile(f)
@@ -327,9 +327,9 @@ function FileTab({ mode }) {
       >
         <ShieldCheck size={14} strokeWidth={1.5} className="flex-shrink-0 mt-0.5" />
         <span>
-          Files are processed entirely in your browser using the{' '}
+          Your browser processes each file with the{' '}
           <span className="font-mono">FileReader</span> API.
-          Nothing is uploaded to any server. The file is released from memory as soon as processing completes.
+          The site does not upload your file. The browser removes the file from memory when the work is complete.
         </span>
       </div>
 
@@ -368,10 +368,10 @@ function FileTab({ mode }) {
             ) : (
               <div className="text-center">
                 <p className="text-sm font-sans" style={{ color: 'var(--color-ink-muted)' }}>
-                  Drop a file here or click to browse
+                  Drop a file here, or select this area to find a file.
                 </p>
                 <p className="text-xs font-sans mt-0.5" style={{ color: 'var(--color-ink-faint)' }}>
-                  Any file type · up to 10 MB
+                  All file types. Maximum 10 MB.
                 </p>
               </div>
             )}
@@ -421,7 +421,7 @@ function FileTab({ mode }) {
             <textarea
               value={b64Input}
               onChange={e => { setB64Input(e.target.value); setError(null) }}
-              placeholder="Paste Base64 encoded file content here…"
+              placeholder="Paste the Base64 content of a file here."
               spellCheck={false}
               style={{
                 ...taStyle,

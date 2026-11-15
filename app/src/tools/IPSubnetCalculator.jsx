@@ -108,7 +108,7 @@ function IPv4Result({ result }) {
           className="px-3 py-2 text-xs font-semibold"
           style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-ink-muted)', borderBottom: '1px solid var(--color-border)' }}
         >
-          Network Details — {ip}/{cidr}
+          Network Details: {ip}/{cidr}
         </div>
         <div className="px-3" style={{ backgroundColor: 'var(--color-input-bg)' }}>
           <table className="w-full">
@@ -223,7 +223,7 @@ function IPv6Result({ result }) {
           className="px-3 py-2 text-xs font-semibold"
           style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-ink-muted)', borderBottom: '1px solid var(--color-border)' }}
         >
-          Network Details — {compressed}/{cidr}
+          Network Details: {compressed}/{cidr}
         </div>
         <div className="px-3" style={{ backgroundColor: 'var(--color-input-bg)' }}>
           <table className="w-full">
@@ -380,7 +380,7 @@ export default function IPSubnetCalculator() {
           </h1>
         </div>
         <p className="text-sm" style={{ color: 'var(--color-ink-muted)' }}>
-          Dual-stack IPv4 & IPv6 subnet calculations — network address, host range, masks, and more.
+          Calculate IPv4 and IPv6 subnets. See the network address, the host range and the masks.
         </p>
       </div>
 
@@ -421,7 +421,7 @@ export default function IPSubnetCalculator() {
                   value={v4IP}
                   onChange={e => setV4IP(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && calcV4()}
-                  placeholder="e.g. 192.168.1.0"
+                  placeholder="Example: 192.168.1.0"
                   style={{
                     ...inputStyle,
                     borderColor: v4Error ? 'var(--color-error)' : 'var(--color-border-strong)',
@@ -498,7 +498,7 @@ export default function IPSubnetCalculator() {
                   value={v6Addr}
                   onChange={e => setV6Addr(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && calcV6()}
-                  placeholder="e.g. 2001:db8::1"
+                  placeholder="Example: 2001:db8::1"
                   style={{
                     ...inputStyle,
                     borderColor: v6Error ? 'var(--color-error)' : 'var(--color-border-strong)',
@@ -642,27 +642,27 @@ export default function IPSubnetCalculator() {
           {[
             {
               title: 'What is a Subnet?',
-              body: `A subnet (subnetwork) is a logical subdivision of an IP network. Subnetting divides a large network into smaller, manageable segments — improving security, reducing congestion, and enabling more efficient use of IP address space. Devices on the same subnet can communicate directly; devices on different subnets require a router.`,
+              body: `A subnet (subnetwork) is a logical part of an IP network. Subnetting divides a large network into smaller segments. This increases security, decreases congestion and uses the IP address space efficiently. Devices on the same subnet communicate directly. Devices on different subnets must use a router.`,
             },
             {
               title: 'What is a Router?',
-              body: `A router is a network device that forwards data packets between different subnets or networks. It examines the destination IP address of each packet and uses a routing table to determine the best path to forward it. Without a router, hosts on different subnets cannot reach each other.`,
+              body: `A router is a network device that sends data packets between subnets or networks. It reads the destination IP address of each packet. Then it uses a routing table to find the best path. Without a router, hosts on different subnets cannot communicate.`,
             },
             {
               title: 'Network Number vs. Host Identifier',
-              body: `An IP address has two logical parts: the network portion (identified by the subnet mask) and the host portion. The subnet mask applied via bitwise AND isolates the network address. The remaining bits identify the specific host within that network. Example: in 192.168.1.50/24, the network is 192.168.1.0 and the host is .50.`,
+              body: `An IP address has two logical parts: the network part and the host part. The subnet mask identifies the network part. A bitwise AND of the address and the mask gives the network address. The remaining bits identify the host in that network. Example: in 192.168.1.50/24, the network is 192.168.1.0 and the host is .50.`,
             },
             {
               title: 'CIDR Notation',
-              body: `Classless Inter-Domain Routing (CIDR) notation represents both an IP address and its associated routing prefix. Written as an address followed by a slash and the prefix length (e.g., 10.0.0.0/8). The prefix length indicates how many leading bits of the address are fixed for the network. CIDR replaced the rigid Class A/B/C system, enabling flexible allocation and helping slow IPv4 address exhaustion.`,
+              body: `Classless Inter-Domain Routing (CIDR) notation shows an IP address and its routing prefix. Write the address, then a slash, then the prefix length. Example: 10.0.0.0/8. The prefix length is the number of leading bits that identify the network. CIDR replaced the Class A, B and C system. It permits flexible allocation and slows the exhaustion of IPv4 addresses.`,
             },
             {
               title: 'Network Address & Broadcast',
-              body: `The network address is the first address in a subnet (all host bits set to 0). It identifies the subnet itself and is not assignable to any host. The broadcast address is the last address (all host bits set to 1). Packets sent to this address reach all hosts on the subnet. Only the addresses between these two are usable host addresses.`,
+              body: `The network address is the first address in a subnet (all host bits are 0). It identifies the subnet. You cannot assign it to a host. The broadcast address is the last address (all host bits are 1). Packets sent to this address go to all hosts on the subnet. You can assign only the addresses between these two to hosts.`,
             },
             {
               title: 'IPv6 Addressing',
-              body: `IPv6 uses 128-bit addresses written as eight groups of four hexadecimal digits (e.g., 2001:0db8:85a3:0000:0000:8a2e:0370:7334). Consecutive groups of zeros can be compressed with :: (once per address). IPv6 was designed to overcome IPv4 exhaustion — providing 2¹²⁸ ≈ 3.4 × 10³⁸ unique addresses. Subnetting in IPv6 follows the same CIDR principles, with prefix lengths from /0 to /128.`,
+              body: `IPv6 uses 128-bit addresses. Write an address as eight groups of four hexadecimal digits. Example: 2001:0db8:85a3:0000:0000:8a2e:0370:7334. You can replace one sequence of zero groups with :: in each address. IPv6 solves the exhaustion of IPv4 addresses. It has 2¹²⁸ ≈ 3.4 × 10³⁸ addresses. IPv6 subnets use the same CIDR rules, with prefix lengths from /0 to /128.`,
             },
           ].map(({ title, body }) => (
             <div

@@ -99,7 +99,7 @@ export default function JSONFormatter() {
     try {
       const text = await navigator.clipboard.readText()
       handleInputChange(text)
-    } catch { /* permission denied — ignore */ }
+    } catch { /* permission denied: ignore */ }
   }
 
   const inputStats  = input  ? `${input.split('\n').length}L · ${input.length}c`  : null
@@ -187,7 +187,7 @@ export default function JSONFormatter() {
         </div>
       </div>
 
-      {/* ── Split workspace — CSS Grid named areas ── */}
+      {/* ── Split workspace: CSS Grid named areas ── */}
       <div
         style={{
           display: 'grid',
@@ -247,7 +247,7 @@ export default function JSONFormatter() {
             <textarea
               value={output}
               readOnly
-              placeholder="Formatted or minified output appears here."
+              placeholder="The formatted or minified output shows here."
               spellCheck={false}
               style={{
                 ...textareaBase,

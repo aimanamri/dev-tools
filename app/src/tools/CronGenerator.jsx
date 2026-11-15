@@ -21,7 +21,7 @@ const FIELDS = [
     key: 'minute',
     label: 'Minute',
     range: '0–59',
-    guidance: 'Use a number (0–59), a range like 5-30, a step like */5, or a list like 0,15,30',
+    guidance: 'Use a number (0 to 59), a range such as 5-30, a step such as */5, or a list such as 0,15,30',
     chips: [
       { label: '*',     value: '*',    hint: 'every' },
       { label: '*/5',   value: '*/5',  hint: 'every 5' },
@@ -35,7 +35,7 @@ const FIELDS = [
     key: 'hour',
     label: 'Hour',
     range: '0–23',
-    guidance: 'Use a number (0–23), a range like 9-17, a step like */6, or a list like 0,12',
+    guidance: 'Use a number (0 to 23), a range such as 9-17, a step such as */6, or a list such as 0,12',
     chips: [
       { label: '*',     value: '*',     hint: 'every hour' },
       { label: '*/2',   value: '*/2',   hint: 'every 2h' },
@@ -50,7 +50,7 @@ const FIELDS = [
     key: 'dom',
     label: 'Day of Month',
     range: '1–31',
-    guidance: 'Use a number (1–31), a range like 1-15, a step like */2, or a list like 1,15',
+    guidance: 'Use a number (1 to 31), a range such as 1-15, a step such as */2, or a list such as 1,15',
     chips: [
       { label: '*',   value: '*',  hint: 'every day' },
       { label: '1',   value: '1',  hint: '1st' },
@@ -62,7 +62,7 @@ const FIELDS = [
     key: 'month',
     label: 'Month',
     range: '1–12',
-    guidance: 'Use a number (1–12), a range like 3-9, a step like */3, or a list like 1,6,12',
+    guidance: 'Use a number (1 to 12), a range such as 3-9, a step such as */3, or a list such as 1,6,12',
     chips: [
       { label: '*',   value: '*',    hint: 'every' },
       { label: '1',   value: '1',    hint: 'Jan' },
@@ -77,7 +77,7 @@ const FIELDS = [
     key: 'dow',
     label: 'Day of Week',
     range: '0–6 (Sun=0)',
-    guidance: 'Use a number (0=Sun, 1=Mon … 6=Sat), a range like 1-5, or a list like 0,6',
+    guidance: 'Use a number (0 or 7 = Sunday, 1 = Monday, to 6 = Saturday), a name such as MON, a range such as 1-5, or a list such as 0,6',
     chips: [
       { label: '*',    value: '*',    hint: 'every day' },
       { label: '1-5',  value: '1-5',  hint: 'weekdays' },
@@ -328,7 +328,7 @@ export default function CronGenerator() {
           {/* Raw input toggle */}
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono" style={{ color: 'var(--color-ink-faint)' }}>
-              or type directly:
+              or type an expression:
             </span>
             <input
               type="text"
@@ -358,7 +358,7 @@ export default function CronGenerator() {
               <div className="flex items-center gap-2">
                 <AlertCircle size={14} strokeWidth={2} style={{ color: 'var(--color-error)', flexShrink: 0 }} />
                 <span className="text-sm font-sans font-medium" style={{ color: 'var(--color-error)' }}>
-                  Fix the following fields before the expression is valid:
+                  Correct these fields. Then the expression is valid:
                 </span>
               </div>
               <ul style={{ margin: '0 0 0 1.5rem', padding: 0, listStyle: 'disc' }}>

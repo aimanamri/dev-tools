@@ -10,7 +10,7 @@ import Button from '../components/ui/Button'
 import CopyButton from '../components/ui/CopyButton'
 
 const STYLES = `
-/* shared base — each element provides its own background */
+/* shared base: each element provides its own background */
 .pdc-pre { margin: 0; tab-size: 4; }
 .pdc-pre code.hljs { background: transparent; color: var(--color-ink); padding: 0; }
 
@@ -28,7 +28,7 @@ const STYLES = `
 .pdc-pre .hljs-variable      { color: #e36209; }
 .pdc-pre .hljs-meta          { color: #6a737d; }
 
-/* dark-mode token colours — html.dark class (app toggle, not OS preference) */
+/* dark-mode token colours: html.dark class (app toggle, not OS preference) */
 html.dark .pdc-pre .hljs-keyword,
 html.dark .pdc-pre .hljs-selector-tag { color: #c792ea; }
 html.dark .pdc-pre .hljs-string,
@@ -105,7 +105,7 @@ const SAMPLE = `{
     'active': True,
     'score': None,
     'tags': ['python', 'dev'],
-    'coords': (48.8566, 2.3522),  # tuple → array
+    'coords': (48.8566, 2.3522),  # a tuple becomes an array
     'meta': {
         'version': 2,
         'debug': False
@@ -131,7 +131,7 @@ function hljsJson(code) {
 
 const EDU_BLOCKS = [
   {
-    title: 'json.dumps() — dict to JSON string',
+    title: 'json.dumps(): dict to JSON string',
     code: `import json
 
 data = {
@@ -149,7 +149,7 @@ print(json_str)
 # }`,
   },
   {
-    title: 'json.dump() / json.load() — file I/O',
+    title: 'json.dump() and json.load(): file I/O',
     code: `import json
 
 # Write dict to a file
@@ -164,7 +164,7 @@ with open('data.json', 'r') as f:
 parsed = json.loads('{"key": "value"}')`,
   },
   {
-    title: 'Custom serializer — non-standard types',
+    title: 'Custom serializer: types that JSON does not have',
     code: `import json
 
 data = {
@@ -180,7 +180,7 @@ def default(obj):
 json.dumps(data, default=default, indent=2)`,
   },
   {
-    title: 'sort_keys & separators — compact output',
+    title: 'sort_keys and separators: compact output',
     code: `import json
 
 data = {"z": 1, "a": 2, "m": 3}
@@ -215,9 +215,9 @@ function EducationalPanel() {
           Python's json module
         </h2>
         <p className="text-sm font-sans" style={{ color: 'var(--color-ink-muted)', lineHeight: 1.6 }}>
-          Built into the standard library — no pip install needed. The{' '}
+          This module is in the standard library. No installation is necessary. The{' '}
           <code style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8125rem', color: 'var(--color-primary)' }}>json</code>{' '}
-          module converts Python dicts to JSON-compliant strings and handles all type coercions.
+          module converts a Python dict to a JSON string and converts each type.
         </p>
       </div>
 
@@ -345,7 +345,7 @@ export default function PythonDictConverter() {
         }}
       >
         <ShieldCheck size={13} strokeWidth={1.5} style={{ flexShrink: 0 }} />
-        All conversions run 100% in-browser — your data never leaves this page.
+        All conversions occur in your browser. Your data stays on this page.
       </div>
 
       {/* Split editors */}
@@ -445,7 +445,7 @@ export default function PythonDictConverter() {
             dangerouslySetInnerHTML={{
               __html: output
                 ? `<code class="hljs">${hljsJson(output)}</code>`
-                : `<span style="color:var(--color-ink-faint)">JSON output will appear here…</span>`
+                : `<span style="color:var(--color-ink-faint)">The JSON output shows here.</span>`
             }}
           />
         </div>

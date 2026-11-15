@@ -19,7 +19,7 @@ export default defineConfig([
       'no-unused-vars': ['error', { caughtErrors: 'none', varsIgnorePattern: '^_', argsIgnorePattern: '^_' }],
     },
     languageOptions: {
-      globals: globals.browser,
+      globals: { ...globals.browser, __APP_VERSION__: 'readonly' },
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },

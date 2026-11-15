@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { readFileSync } from 'node:fs'
+
+// package.json is the one source of the version number.
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
 // The same security headers as app/public/.htaccess and nginx.conf.
 // "npm run preview" sends them, thus you can test the production policy locally.
@@ -14,6 +18,7 @@ const SECURITY_HEADERS = {
 }
 
 export default defineConfig({
+  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   preview: { headers: SECURITY_HEADERS },
   plugins: [
     react(),

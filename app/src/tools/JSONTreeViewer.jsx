@@ -266,7 +266,7 @@ export default function JSONTreeViewer() {
           JSON Tree Viewer
         </h1>
         <p style={{ fontSize: '0.875rem', color: 'var(--color-ink-muted)', margin: '0.25rem 0 0', fontFamily: 'var(--font-sans)' }}>
-          Paste JSON to explore its structure interactively.
+          Paste JSON to examine its structure in a tree.
         </p>
       </div>
 
@@ -291,7 +291,7 @@ export default function JSONTreeViewer() {
             </button>
             <button className="jtv-btn-sm" data-ok={String(copied)} onClick={handleCopy} disabled={!parsed || !!error}>
               {copied ? <Check size={11} /> : <Copy size={11} />}
-              {copied ? 'Copied!' : 'Copy'}
+              {copied ? 'Copied' : 'Copy'}
             </button>
           </div>
         </div>

@@ -6,7 +6,7 @@
   --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.09), 0 1px 2px oklch(0 0 0 / 0.06);
   --shadow-md: 0 4px 8px oklch(0 0 0 / 0.10), 0 2px 4px oklch(0 0 0 / 0.06);
 
-  /* Surfaces — cool near-white; panels are white and separated by borders */
+  /* Surfaces: cool near-white; panels are white and separated by borders */
   --color-bg:               oklch(0.985 0.003 250);
   --color-surface:          oklch(1.000 0.000 0);
   --color-surface-raised:   oklch(0.968 0.005 250);
@@ -14,7 +14,7 @@
   --color-sidebar-surface:  oklch(0.945 0.018 233);
   --color-toolbar:          oklch(1.000 0.000 0);
 
-  /* Text — deep cool charcoal for high contrast on white */
+  /* Text: deep cool charcoal for high contrast on white */
   --color-ink:              oklch(0.270 0.020 255);
   --color-ink-muted:        oklch(0.450 0.018 255);
   --color-ink-faint:        oklch(0.540 0.016 255);
@@ -22,7 +22,7 @@
   --color-ink-sidebar-muted: oklch(0.450 0.018 255);
   --color-ink-on-primary:   oklch(1.000 0.000 0);
 
-  /* Brand — muted slate blue (~#4F6D7A), dark enough for white button text */
+  /* Brand: muted slate blue (~#4F6D7A), dark enough for white button text */
   --color-primary:          oklch(0.470 0.055 233);
   --color-primary-hover:    oklch(0.415 0.058 233);
   --color-primary-subtle:   oklch(0.945 0.022 233);
@@ -37,7 +37,7 @@
   --color-error:            oklch(0.490 0.195 18);
   --color-info:             oklch(0.480 0.120 230);
 
-  /* Borders — clear light-to-medium gray for defined panels */
+  /* Borders: clear light-to-medium gray for defined panels */
   --color-border:           oklch(0.910 0.006 255);
   --color-border-strong:    oklch(0.855 0.010 255);
   --color-border-sidebar:   oklch(0.892 0.008 255);
@@ -59,7 +59,7 @@
 }
 
 html.dark {
-  /* Surfaces — dark blue-slate to match the markdown preview pane */
+  /* Surfaces: dark blue-slate to match the markdown preview pane */
   --color-bg:               oklch(0.150 0.028 255);
   --color-surface:          oklch(0.190 0.034 255);
   --color-surface-raised:   oklch(0.225 0.036 255);
@@ -70,12 +70,12 @@ html.dark {
   /* Text */
   --color-ink:              oklch(0.945 0.012 250);
   --color-ink-muted:        oklch(0.670 0.022 250);
-  --color-ink-faint:        oklch(0.500 0.020 255);
+  --color-ink-faint:        oklch(0.620 0.020 255);
   --color-ink-on-sidebar:   oklch(0.915 0.014 250);
   --color-ink-sidebar-muted: oklch(0.620 0.024 250);
   --color-ink-on-primary:   oklch(1.000 0.000 0);
 
-  /* Brand — slate blue, brightened to read on the navy surfaces */
+  /* Brand: slate blue, brightened to read on the navy surfaces */
   --color-primary:          oklch(0.640 0.090 228);
   --color-primary-hover:    oklch(0.690 0.085 228);
   --color-primary-subtle:   oklch(0.275 0.055 235);

@@ -123,7 +123,7 @@ function CopyButton({ text }) {
       }}
       onMouseEnter={e => { if (!copied) e.currentTarget.style.backgroundColor = 'var(--color-surface-raised)' }}
       onMouseLeave={e => { if (!copied) e.currentTarget.style.backgroundColor = 'transparent' }}
-      title={copied ? 'Copied!' : 'Copy'}
+      title={copied ? 'Copied' : 'Copy'}
       aria-label="Copy to clipboard"
     >
       {copied ? <Check size={13} strokeWidth={2} /> : <Copy size={13} strokeWidth={1.5} />}
@@ -393,7 +393,7 @@ export default function TimestampConverter() {
                 inputMode="numeric"
                 value={tsInput}
                 onChange={e => handleTsChange(e.target.value)}
-                placeholder="e.g. 1700000000"
+                placeholder="Example: 1700000000"
                 className="w-full font-mono text-sm rounded-xs border px-3 py-2"
                 style={{
                   backgroundColor: 'var(--color-input-bg)',
@@ -585,8 +585,8 @@ export default function TimestampConverter() {
               not counting leap seconds.
             </p>
             <p>
-              Timestamps are timezone-agnostic — the same integer represents the same instant everywhere
-              on Earth. Local time is a presentation concern, not a storage concern.
+              A timestamp has no time zone. The same integer is the same instant everywhere
+              on Earth. Store the timestamp. Show the local time only when you display it.
             </p>
             <div
               className="rounded-xs p-3 border-l-2"
@@ -599,10 +599,10 @@ export default function TimestampConverter() {
                 Year 2038 Problem
               </p>
               <p className="text-xs font-sans" style={{ color: 'var(--color-ink-muted)', lineHeight: 1.6 }}>
-                32-bit signed integers overflow at <span className="font-mono" style={{ color: 'var(--color-ink)' }}>2,147,483,647</span> —
-                which corresponds to <span className="font-mono" style={{ color: 'var(--color-ink)' }}>2038-01-19 03:14:07 UTC</span>.
-                Systems still using 32-bit <code style={{ color: 'var(--color-ink)' }}>time_t</code> will wrap to a
-                negative value, interpreting the date as 1901. 64-bit systems are not affected.
+                32-bit signed integers overflow at <span className="font-mono" style={{ color: 'var(--color-ink)' }}>2,147,483,647</span>.
+                This is <span className="font-mono" style={{ color: 'var(--color-ink)' }}>2038-01-19 03:14:07 UTC</span>.
+                Systems that use a 32-bit <code style={{ color: 'var(--color-ink)' }}>time_t</code> go back to a
+                negative value and read the date as 1901. This does not occur on 64-bit systems.
               </p>
             </div>
           </div>

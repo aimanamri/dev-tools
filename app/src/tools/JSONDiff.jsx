@@ -266,7 +266,7 @@ export default function JSONDiff() {
           JSON Diff
         </h1>
         <p style={{ fontSize: '0.875rem', color: 'var(--color-ink-muted)', margin: '0.25rem 0 0', fontFamily: 'var(--font-sans)' }}>
-          Paste two JSON objects — keys are auto-sorted before comparison so order differences are ignored.
+          Paste two JSON documents. The tool sorts the keys before it compares them. Thus a different key sequence is not a change.
         </p>
       </div>
 
@@ -342,7 +342,7 @@ export default function JSONDiff() {
                 onClick={handleCopyDiff}
               >
                 {copied ? <Check size={13} /> : <Copy size={13} />}
-                {copied ? 'Copied!' : 'Copy diff'}
+                {copied ? 'Copied' : 'Copy diff'}
               </button>
             </>
           )}
@@ -355,7 +355,7 @@ export default function JSONDiff() {
           {diff.identical ? (
             <div className="jsd-notice">
               <span style={{ fontSize: '1.5rem' }}>✓</span>
-              <span>The two JSON objects are identical after key-sorting.</span>
+              <span>The two JSON documents are the same after the keys are sorted.</span>
             </div>
           ) : view === 'split' ? (
             <>

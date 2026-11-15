@@ -99,7 +99,7 @@ const TYPE_CONFIG = {
   pdf: {
     fields: [
       { key: 'url',  label: 'Hosted PDF URL',  type: 'text', placeholder: 'https://example.com/document.pdf' },
-      { key: 'note', label: '', type: 'note',  value: 'QR codes cannot embed binary files. Host the PDF publicly and paste its URL above.' },
+      { key: 'note', label: '', type: 'note',  value: 'A QR code cannot hold a PDF file. Put the PDF on a public web address. Then paste the address above.' },
     ],
     build: f => f.url?.trim() || '',
   },
@@ -221,7 +221,7 @@ function CopyButton({ text }) {
       style={{ color: copied ? 'var(--color-success)' : 'var(--color-ink-faint)' }}
       onMouseEnter={e => { if (!copied) e.currentTarget.style.backgroundColor = 'var(--color-surface-raised)' }}
       onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent' }}
-      title={copied ? 'Copied!' : 'Copy QR data'}
+      title={copied ? 'Copied' : 'Copy QR data'}
     >
       {copied ? <Check size={13} strokeWidth={2} /> : <Copy size={13} strokeWidth={1.5} />}
     </button>
@@ -370,7 +370,7 @@ export default function QRGenerator() {
                 <div className="flex flex-col items-center gap-2 text-center py-4">
                   <AlertCircle size={24} strokeWidth={1.5} style={{ color: 'var(--color-ink-faint)' }} />
                   <p className="text-xs font-sans" style={{ color: 'var(--color-ink-faint)' }}>
-                    Fill in the form to generate a QR code
+                    Complete the form to make a QR code.
                   </p>
                 </div>
               ) : (
@@ -506,10 +506,10 @@ export default function QRGenerator() {
                   ))}
                 </div>
                 <p className="text-2xs font-sans" style={{ color: 'var(--color-ink-faint)' }}>
-                  {ecLevel === 'L' && 'Low — 7% restoration'}
-                  {ecLevel === 'M' && 'Medium — 15% restoration'}
-                  {ecLevel === 'Q' && 'Quartile — 25% restoration'}
-                  {ecLevel === 'H' && 'High — 30% restoration'}
+                  {ecLevel === 'L' && 'Low: restores 7% of the data'}
+                  {ecLevel === 'M' && 'Medium: restores 15% of the data'}
+                  {ecLevel === 'Q' && 'Quartile: restores 25% of the data'}
+                  {ecLevel === 'H' && 'High: restores 30% of the data'}
                 </p>
               </div>
             </div>
@@ -521,7 +521,7 @@ export default function QRGenerator() {
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8, background: 'color-mix(in oklch, var(--color-success) 10%, var(--color-surface))', border: '1px solid var(--color-success)', marginTop: 16 }}>
         <ShieldCheck size={16} strokeWidth={1.5} style={{ color: 'var(--color-success)', flexShrink: 0, marginTop: 1 }} />
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)', margin: 0, lineHeight: 1.55 }}>
-          QR codes are generated entirely in your browser. Your data never leaves your device or touches any server.
+          Your browser makes each QR code. Your data stays on your device.
         </p>
       </div>
 

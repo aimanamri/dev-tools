@@ -223,11 +223,11 @@ export default function PDFSecurityTool() {
     const nameOk = f.name.toLowerCase().endsWith('.pdf')
     const typeOk = !f.type || f.type === 'application/pdf'
     if (!nameOk || !typeOk) {
-      setStatus({ type: 'error', message: `"${f.name}" is not a PDF. Only .pdf files are accepted.` })
+      setStatus({ type: 'error', message: `"${f.name}" is not a PDF. Select a .pdf file.` })
       return
     }
     if (f.size > 200 * 1024 * 1024) {
-      setStatus({ type: 'error', message: 'File exceeds the 200 MB limit.' }); return
+      setStatus({ type: 'error', message: 'The file is larger than the 200 MB limit.' }); return
     }
     setStatus(null); setPdfEncStatus(null)
     const reader = new FileReader()
@@ -256,7 +256,7 @@ export default function PDFSecurityTool() {
         doc = await PDFDocument.load(file.bytes.slice())
       } catch (e) {
         if (e.message?.toLowerCase().includes('encrypt')) {
-          throw new Error('This PDF is already encrypted. Use the Unlock tab first to remove the existing password, then encrypt again.')
+          throw new Error('This PDF is encrypted. First use the Unlock tab to remove the password. Then encrypt the PDF again.')
         }
         throw new Error('Could not read this PDF. The file may be corrupted.')
       }
@@ -286,7 +286,7 @@ export default function PDFSecurityTool() {
       })
 
     } catch (err) {
-      setStatus({ type: 'error', message: err.message || 'Failed to encrypt PDF.' })
+      setStatus({ type: 'error', message: err.message || 'The tool could not encrypt the PDF.' })
     } finally {
       setProcessing(false)
     }
@@ -308,8 +308,8 @@ export default function PDFSecurityTool() {
         }).promise
       } catch (e) {
         if (e.name === 'PasswordException') {
-          if (e.code === 1) throw new Error('This PDF requires a password. Enter it above.')
-          throw new Error('Incorrect password. Please check and try again.')
+          if (e.code === 1) throw new Error('This PDF has a password. Enter the password above.')
+          throw new Error('The password is incorrect. Enter the correct password.')
         }
         throw new Error('Could not read this PDF. The file may be corrupted.')
       }
@@ -346,11 +346,11 @@ export default function PDFSecurityTool() {
       triggerDownload(outBytes, outName)
       setStatus({
         type: 'success',
-        message: `Unlocked! Downloading "${outName}". Output is a flattened PDF (144 dpi images) — text is readable but not selectable.`,
+        message: `The PDF is unlocked. The download of "${outName}" started. The output is a flattened PDF (144 dpi images). You can read the text but you cannot select it.`,
       })
 
     } catch (err) {
-      setStatus({ type: 'error', message: err.message || 'Failed to unlock PDF.' })
+      setStatus({ type: 'error', message: err.message || 'The tool could not unlock the PDF.' })
     } finally {
       setProcessing(false); setProgress({ current: 0, total: 0 })
     }
@@ -427,7 +427,7 @@ export default function PDFSecurityTool() {
           PDF Security
         </h1>
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', color: 'var(--color-ink-muted)', margin: 0 }}>
-          Encrypt PDFs with AES-128 password protection, or remove encryption from protected PDFs — fully in-browser.
+          Add an AES-128 password to a PDF, or remove the password from a protected PDF. All work occurs in your browser.
         </p>
       </div>
 
@@ -463,7 +463,7 @@ export default function PDFSecurityTool() {
 
               <PasswordInput
                 label="Open Password"
-                hint="required — anyone opening the PDF must enter this"
+                hint="Necessary. A person must enter this password to open the PDF."
                 value={userPass}
                 onChange={v => { setUserPass(v); setStatus(null) }}
                 onEnter={() => canEncrypt && handleEncrypt()}
@@ -472,7 +472,7 @@ export default function PDFSecurityTool() {
 
               <PasswordInput
                 label="Owner Password"
-                hint="optional — full-access override (defaults to open password if blank)"
+                hint="Optional. This password gives full access. If it is empty, the tool uses the open password."
                 value={ownerPass}
                 onChange={v => { setOwnerPass(v); setStatus(null) }}
                 placeholder="Leave blank to use the same password"
@@ -581,7 +581,7 @@ export default function PDFSecurityTool() {
 
               <PasswordInput
                 label="PDF Password"
-                hint={pdfEncStatus === 'unencrypted' ? 'not required — this PDF has no user password' : 'leave blank if the PDF has no user password'}
+                hint={pdfEncStatus === 'unencrypted' ? 'Not necessary. This PDF has no user password.' : 'Keep this empty if the PDF has no user password.'}
                 value={unlockPass}
                 onChange={v => { setUnlockPass(v); setStatus(null) }}
                 onEnter={() => canUnlock && handleUnlock()}
@@ -607,7 +607,7 @@ export default function PDFSecurityTool() {
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 12px', borderRadius: 6, background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)' }}>
                 <Info size={13} strokeWidth={1.5} style={{ color: 'var(--color-info)', flexShrink: 0, marginTop: 1 }} />
                 <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)', margin: 0, lineHeight: 1.55 }}>
-                  Output is a <strong>flattened PDF</strong> — each page is rendered as a 144 dpi image. Text stays readable but is no longer selectable or searchable.
+                  The output is a <strong>flattened PDF</strong>. Each page becomes a 144 dpi image. You can read the text, but you cannot select it or search it.
                 </p>
               </div>
             </div>
@@ -637,11 +637,11 @@ export default function PDFSecurityTool() {
         <ShieldCheck size={16} strokeWidth={1.5} style={{ color: 'var(--color-success)', flexShrink: 0, marginTop: 1 }} />
         <div>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-ink)', margin: '0 0 2px' }}>
-            100% Client-Side Processing
+            All work occurs in your browser
           </p>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--color-ink-muted)', margin: 0, lineHeight: 1.55 }}>
-            Your PDF and passwords never leave your device. Encryption uses AES-128 via pdf-lib-plus-encrypt.
-            Clicking "Clear & Reset" wipes all data from memory.
+            Your PDF and your passwords stay on your device. The tool uses AES-128 encryption from pdf-lib-plus-encrypt.
+            Select "Clear & Reset" to remove all data from memory.
           </p>
         </div>
       </div>

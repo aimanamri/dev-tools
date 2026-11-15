@@ -333,7 +333,7 @@ export default function PDFToolSuite() {
       setWorkBytes(arr)
       setFileName(name || 'document.pdf')
       setMergeQueue([])
-      setStatus({ type: 'success', msg: `Loaded "${name}" — ${n} page${n !== 1 ? 's' : ''}, ${fmtBytes(arr.length)}` })
+      setStatus({ type: 'success', msg: `Loaded "${name}": ${n} page${n !== 1 ? 's' : ''}, ${fmtBytes(arr.length)}` })
     } catch (err) {
       setStatus({ type: 'error', msg: `Failed to load PDF: ${err.message}` })
     } finally {
@@ -449,7 +449,7 @@ export default function PDFToolSuite() {
           }
         })
       } else {
-        // Phrases span item boundaries — fall back to page-level, no per-word highlight
+        // Phrases span item boundaries: fall back to page-level, no per-word highlight
         const text = tc.items
           .filter(it => typeof it.str === 'string')
           .map(it => it.str)
@@ -534,7 +534,7 @@ export default function PDFToolSuite() {
       setPageOrder(Array.from({ length: n }, (_, i) => ({ id: `p${i}`, origIdx: i })))
       setDeletedIds(new Set())
       setCurrentPage(1)
-      setStatus({ type: 'success', msg: `Applied — ${n} page${n !== 1 ? 's' : ''} remaining` })
+      setStatus({ type: 'success', msg: `Changes applied. ${n} page${n !== 1 ? 's' : ''} remain.` })
     } catch (err) {
       setStatus({ type: 'error', msg: `Apply failed: ${err.message}` })
     } finally {
@@ -576,7 +576,7 @@ export default function PDFToolSuite() {
       setDeletedIds(new Set())
       setCurrentPage(1)
       setMergeQueue([])
-      setStatus({ type: 'success', msg: `Merged — ${n} pages total` })
+      setStatus({ type: 'success', msg: `Merge complete. The document has ${n} pages.` })
     } catch (err) {
       setStatus({ type: 'error', msg: `Merge failed: ${err.message}` })
     } finally {
@@ -1114,7 +1114,7 @@ export default function PDFToolSuite() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 12 }}>
                 <label style={labelWrap}>
                   Watermark Text
-                  <input value={wmText} onChange={e => setWmText(e.target.value)} style={fieldInput} placeholder="e.g. CONFIDENTIAL" />
+                  <input value={wmText} onChange={e => setWmText(e.target.value)} style={fieldInput} placeholder="Example: CONFIDENTIAL" />
                 </label>
                 <label style={labelWrap}>
                   Position
@@ -1170,7 +1170,7 @@ export default function PDFToolSuite() {
                         <input
                           value={wmPagesCustom}
                           onChange={e => setWmPagesCustom(e.target.value)}
-                          placeholder="e.g. 1,5-7,32,70,3-1"
+                          placeholder="Example: 1,5-7,32,70,3-1"
                           style={{
                             ...fieldInput,
                             borderColor: invalid ? 'var(--color-error)' : 'var(--color-border-strong)',

@@ -70,7 +70,7 @@ export default function Toolbar({ title, collapsed, isDark, onToggleTheme, onTog
 
       <Divider />
 
-      {/* Logo — links to home */}
+      {/* Logo: links to home */}
       <Link
         to="/"
         className="flex items-center gap-1.5 flex-shrink-0 rounded-sm transition-opacity duration-fast"
@@ -114,7 +114,7 @@ export default function Toolbar({ title, collapsed, isDark, onToggleTheme, onTog
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Live datetime — hidden on small screens */}
+      {/* Live datetime: hidden on small screens */}
       <span
         className="text-xs font-mono hidden sm:block flex-shrink-0"
         style={{ color: 'var(--color-ink-sidebar-muted)' }}
